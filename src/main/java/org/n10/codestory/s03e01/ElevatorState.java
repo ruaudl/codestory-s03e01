@@ -114,10 +114,12 @@ public class ElevatorState implements Cloneable {
 		case UP:
 			floor++;
 			nextCommand = Command.UP;
+			this.direction = Direction.UP; 
 			break;
 		case DOWN:
 			floor--;
 			nextCommand = Command.DOWN;
+			this.direction = Direction.DOWN;
 		default:
 			break;
 		}

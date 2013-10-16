@@ -70,4 +70,20 @@ public class SmartElevatorTest {
 		assertCommands(elevator, CLOSE, DOWN, DOWN, OPEN);
 		assertCommands(elevator, CLOSE, NOTHING);
 	}
+	
+	@Test
+	public void shouldSkipFirstReverse() {
+		ElevatorEngine elevator = new StateSmartElevator();
+		elevator.call(0, Direction.UP);
+		assertCommands(elevator, OPEN);
+		elevator.go(4);
+		assertCommands(elevator, CLOSE, UP, UP, UP);
+		elevator.call(0, Direction.UP);
+		elevator.call(2, Direction.UP);
+		assertCommands(elevator, UP, OPEN, CLOSE, DOWN, DOWN, DOWN,DOWN, OPEN);
+		elevator.go(4);
+		assertCommands(elevator, CLOSE, UP, UP, OPEN);
+		elevator.go(4);
+		assertCommands(elevator, CLOSE, UP, UP, OPEN, CLOSE, NOTHING);
+	}
 }
