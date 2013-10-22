@@ -16,14 +16,14 @@ public class SmartElevatorTest {
 		ElevatorEngine elevator = new SimpleSmartElevator();
 		assertCommands(elevator, NOTHING, NOTHING, NOTHING, NOTHING);
 	}
-	
+
 	@Test
 	public void shouldGoToCall() {
 		ElevatorEngine elevator = new SimpleSmartElevator();
 		elevator.call(4, Direction.UP);
 		assertCommands(elevator, UP, UP, UP, UP, OPEN, CLOSE, NOTHING);
 	}
-	
+
 	@Test
 	public void shouldGoToCallThenGoDown() {
 		ElevatorEngine elevator = new SimpleSmartElevator();
@@ -71,7 +71,7 @@ public class SmartElevatorTest {
 		assertCommands(elevator, CLOSE, DOWN, DOWN, OPEN);
 		assertCommands(elevator, CLOSE, NOTHING);
 	}
-	
+
 	@Test
 	public void shouldSkipFirstReverse() {
 		ElevatorEngine elevator = new StateSmartElevator();
@@ -81,10 +81,22 @@ public class SmartElevatorTest {
 		assertCommands(elevator, CLOSE, UP, UP, UP);
 		elevator.call(0, Direction.UP);
 		elevator.call(2, Direction.UP);
-		assertCommands(elevator, UP, OPEN, CLOSE, DOWN, DOWN, DOWN,DOWN, OPEN);
+		assertCommands(elevator, UP, OPEN, CLOSE, DOWN, DOWN, DOWN, DOWN, OPEN);
 		elevator.go(4);
 		assertCommands(elevator, CLOSE, UP, UP, OPEN);
 		elevator.go(4);
 		assertCommands(elevator, CLOSE, UP, UP, OPEN, CLOSE, NOTHING);
+	}
+
+	@Test
+	public void shouldNotKeep() {
+		ElevatorEngine elevator = new StateSmartElevator();
+		elevator.call(0, Direction.UP);
+		elevator.call(1, Direction.UP);
+		assertCommands(elevator, OPEN);
+		elevator.go(3);
+		assertCommands(elevator, CLOSE, UP, OPEN);
+		elevator.go(1);
+		assertCommands(elevator, CLOSE, OPEN, CLOSE, UP, UP, OPEN, CLOSE, NOTHING);
 	}
 }
