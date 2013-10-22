@@ -1,0 +1,73 @@
+package org.n10.codestory.s03e01;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.n10.codestory.s03e01.api.Command;
+import org.n10.codestory.s03e01.api.Direction;
+import org.n10.codestory.s03e01.api.ElevatorEngine;
+import org.n10.codestory.s03e01.core.StateSmartElevator;
+
+@WebServlet("/*")
+public class ElevatorApplication extends HttpServlet {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private ElevatorEngine elevator = new StateSmartElevator();
+	
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String target = request.getPathInfo().substring(request.getPathInfo().lastIndexOf("/"));
+		switch (target) {
+        case "/nextCommand":
+            synchronized (elevator) {
+                Command nextCommand = elevator.nextCommand();
+                response.getWriter().println(nextCommand);
+//                baseRequest.getResponse().getWriter().println(nextCommand);
+                System.out.println(String.format("%s %s", target, nextCommand));
+            }
+            break;
+        case "/call":
+            Integer atFloor = Integer.valueOf(request.getParameter("atFloor"));
+            Direction to = Direction.valueOf(request.getParameter("to"));
+            synchronized (elevator) {
+                elevator.call(atFloor, to);
+            }
+            System.out.println(String.format("%s atFloor %d to %s", target, atFloor, to));
+            break;
+        case "/go":
+            Integer floorToGo = Integer.valueOf(request.getParameter("floorToGo"));
+            synchronized (elevator) {
+                elevator.go(floorToGo);
+            }
+//            logger.info(format("%s floorToGo %d", target, floorToGo));
+            break;
+        case "/userHasEntered":
+        case "/userHasExited":
+        	System.out.println(target);
+            break;
+        case "/reset":
+            String cause = request.getParameter("cause");
+            synchronized (elevator) {
+                elevator.reset(cause);
+            }
+            System.out.println(String.format("%s cause %s", target, cause));
+            break;
+        default:
+        	System.out.println(target);
+    }
+//    baseRequest.setHandled(true);
+	}
+	
+	@Override
+	protected void doPost(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException {
+		super.doGet(arg0, arg1);
+	}
+}
