@@ -1,9 +1,10 @@
-package org.n10.codestory.s03e01;
+package org.n10.codestory.s03e01.api;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -11,9 +12,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-
-import elevator.Command;
-import elevator.Direction;
 
 public class ElevatorState implements Cloneable {
 

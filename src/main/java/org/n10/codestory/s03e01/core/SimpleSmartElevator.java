@@ -1,8 +1,15 @@
-package org.n10.codestory.s03e01;
+package org.n10.codestory.s03e01.core;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+
+import org.n10.codestory.s03e01.api.Command;
+import org.n10.codestory.s03e01.api.Direction;
+import org.n10.codestory.s03e01.api.ElevatorEngine;
+import org.n10.codestory.s03e01.api.ElevatorIsBrokenException;
+import org.n10.codestory.s03e01.api.Target;
+import org.n10.codestory.s03e01.api.User;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -12,12 +19,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-
-import elevator.Command;
-import elevator.Direction;
-import elevator.User;
-import elevator.engine.ElevatorEngine;
-import elevator.exception.ElevatorIsBrokenException;
 
 public class SimpleSmartElevator implements ElevatorEngine {
 

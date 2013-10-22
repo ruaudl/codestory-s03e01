@@ -1,13 +1,13 @@
-package org.n10.codestory.s03e01;
+package org.n10.codestory.s03e01.core;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import elevator.Command;
-import elevator.Direction;
-import elevator.User;
-import elevator.engine.ElevatorEngine;
-import elevator.exception.ElevatorIsBrokenException;
+import org.n10.codestory.s03e01.api.Command;
+import org.n10.codestory.s03e01.api.Direction;
+import org.n10.codestory.s03e01.api.ElevatorEngine;
+import org.n10.codestory.s03e01.api.ElevatorIsBrokenException;
+import org.n10.codestory.s03e01.api.User;
 
 public class ListDirectElevator implements ElevatorEngine {
 

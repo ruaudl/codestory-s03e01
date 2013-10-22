@@ -1,11 +1,12 @@
 package org.n10.codestory.s03e01;
 
-import static elevator.Command.*;
 import static org.n10.codestory.s03e01.ElevatorAssert.*;
+import static org.n10.codestory.s03e01.api.Command.*;
 
 import org.junit.Test;
-
-import elevator.engine.ElevatorEngine;
+import org.n10.codestory.s03e01.api.ElevatorEngine;
+import org.n10.codestory.s03e01.core.CyclingOmnibusElevator;
+import org.n10.codestory.s03e01.core.StateOmnibusElevator;
 
 public class OmnibusElevatorTest {
 

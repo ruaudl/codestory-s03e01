@@ -1,12 +1,14 @@
 package org.n10.codestory.s03e01;
 
-import static elevator.Command.*;
 import static org.n10.codestory.s03e01.ElevatorAssert.*;
+import static org.n10.codestory.s03e01.api.Command.*;
 
 import org.junit.Test;
-
-import elevator.Direction;
-import elevator.engine.ElevatorEngine;
+import org.n10.codestory.s03e01.api.Direction;
+import org.n10.codestory.s03e01.api.ElevatorEngine;
+import org.n10.codestory.s03e01.core.ListDirectElevator;
+import org.n10.codestory.s03e01.core.SetDirectElevator;
+import org.n10.codestory.s03e01.core.TreeSetDirectElevator;
 
 public class DirectElevatorTest {
 

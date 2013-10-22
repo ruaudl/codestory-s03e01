@@ -1,14 +1,14 @@
-package org.n10.codestory.s03e01;
+package org.n10.codestory.s03e01.core;
 
 import java.util.Iterator;
 
-import com.google.common.collect.Iterators;
+import org.n10.codestory.s03e01.api.Command;
+import org.n10.codestory.s03e01.api.Direction;
+import org.n10.codestory.s03e01.api.ElevatorEngine;
+import org.n10.codestory.s03e01.api.ElevatorIsBrokenException;
+import org.n10.codestory.s03e01.api.User;
 
-import elevator.Command;
-import elevator.Direction;
-import elevator.User;
-import elevator.engine.ElevatorEngine;
-import elevator.exception.ElevatorIsBrokenException;
+import com.google.common.collect.Iterators;
 
 public class CyclingOmnibusElevator implements ElevatorEngine {
 

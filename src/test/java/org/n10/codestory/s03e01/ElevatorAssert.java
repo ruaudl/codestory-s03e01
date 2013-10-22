@@ -1,8 +1,9 @@
 package org.n10.codestory.s03e01;
 
 import static org.fest.assertions.Assertions.*;
-import elevator.Command;
-import elevator.engine.ElevatorEngine;
+
+import org.n10.codestory.s03e01.api.Command;
+import org.n10.codestory.s03e01.api.ElevatorEngine;
 
 public final class ElevatorAssert {
 

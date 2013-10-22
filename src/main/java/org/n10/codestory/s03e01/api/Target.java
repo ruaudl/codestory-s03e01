@@ -1,6 +1,5 @@
-package org.n10.codestory.s03e01;
+package org.n10.codestory.s03e01.api;
 
-import elevator.Direction;
 
 public class Target implements Comparable<Target>{
 
