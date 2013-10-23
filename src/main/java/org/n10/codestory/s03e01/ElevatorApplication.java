@@ -1,7 +1,10 @@
 package org.n10.codestory.s03e01;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Set;
 
+import javax.enterprise.inject.Produces;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -13,7 +16,9 @@ import org.n10.codestory.s03e01.api.Direction;
 import org.n10.codestory.s03e01.api.ElevatorEngine;
 import org.n10.codestory.s03e01.core.StateSmartElevator;
 
-@WebServlet("/*")
+import com.google.common.util.concurrent.Service;
+
+@WebServlet("/")
 public class ElevatorApplication extends HttpServlet {
 
 	/**
@@ -24,7 +29,11 @@ public class ElevatorApplication extends HttpServlet {
 	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String target = request.getPathInfo().substring(request.getPathInfo().lastIndexOf("/"));
+		String path = request.getPathInfo();
+		if(path == null) {
+			path = request.getServletPath();
+		}
+		String target = path.substring(path.lastIndexOf("/"));
 		switch (target) {
         case "/nextCommand":
             synchronized (elevator) {
@@ -69,5 +78,10 @@ public class ElevatorApplication extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException {
 		super.doGet(arg0, arg1);
+	}
+	
+	@Produces
+	public Set<Service> getServices() {
+		return Collections.emptySet();
 	}
 }
