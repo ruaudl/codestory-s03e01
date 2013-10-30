@@ -1,7 +1,7 @@
-package org.n10.codestory.s03e01;
+package org.n10.codestory.s03e01.core;
 
-import static org.n10.codestory.s03e01.ElevatorAssert.*;
 import static org.n10.codestory.s03e01.api.Command.*;
+import static org.n10.codestory.s03e01.core.ElevatorAssert.*;
 
 import org.junit.Test;
 import org.n10.codestory.s03e01.api.Direction;

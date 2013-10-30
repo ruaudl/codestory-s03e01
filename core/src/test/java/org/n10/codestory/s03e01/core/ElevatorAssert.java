@@ -1,4 +1,4 @@
-package org.n10.codestory.s03e01;
+package org.n10.codestory.s03e01.core;
 
 import static org.fest.assertions.Assertions.*;
 
