@@ -12,7 +12,6 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	private ElevatorState state;
 
-
 	public StateSmartElevator() {
 		reset("Init");
 	}
@@ -21,18 +20,22 @@ public class StateSmartElevator implements ElevatorEngine {
 	public Command nextCommand() throws ElevatorIsBrokenException {
 		Command currentCommand = state.nextCommand;
 
+		if (currentCommand == Command.CLOSE) {
+			state.clearFloor();
+		}
+
 		if (state.willOpen()) {
 			state.doClose();
 		} else if (state.shouldOpen()) {
 			state.doOpen();
-		} else if (state.hasTargetsAhead()){
+		} else if (state.hasTargetsAhead()) {
 			state.doContinue();
 		} else if (state.hasTargetsBehind()) {
 			state.doReverse();
 		} else {
 			state.doNothing();
 		}
-		
+
 		if (currentCommand == Command.NOTHING && state.doSomething()) {
 			currentCommand = nextCommand();
 		}
@@ -60,7 +63,7 @@ public class StateSmartElevator implements ElevatorEngine {
 	public ElevatorEngine userHasExited(User user) throws ElevatorIsBrokenException {
 		return this;
 	}
-	
+
 	@Override
 	public ElevatorEngine reset(String cause) throws ElevatorIsBrokenException {
 		state = new ElevatorState();
