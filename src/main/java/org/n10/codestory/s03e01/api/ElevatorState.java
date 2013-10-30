@@ -76,9 +76,12 @@ public class ElevatorState implements Cloneable {
 		}
 		return Iterables.tryFind(targets, predicate).isPresent();
 	}
+	
+	public void clearFloor() {
+		targets = Sets.newHashSet(Collections2.filter(targets, Predicates.not(equalsFloor)));
+	}
 
 	public void doOpen() {
-		targets = Sets.newHashSet(Collections2.filter(targets, Predicates.not(equalsFloor)));
 		nextCommand = Command.OPEN;
 	}
 
