@@ -97,6 +97,17 @@ public class SmartElevatorTest {
 		elevator.go(3);
 		assertCommands(elevator, CLOSE, UP, OPEN);
 		elevator.go(1);
-		assertCommands(elevator, CLOSE, OPEN, CLOSE, UP, UP, OPEN, CLOSE, NOTHING);
+		assertCommands(elevator, CLOSE, UP, UP, OPEN, CLOSE, NOTHING);
+	}
+
+	@Test
+	public void shouldOpenOnce() {
+		ElevatorEngine elevator = new StateSmartElevator();
+		elevator.call(0, Direction.UP);
+		assertCommands(elevator, OPEN);
+		elevator.go(3);
+		elevator.call(0, Direction.UP);
+		elevator.go(3);
+		assertCommands(elevator, CLOSE, UP, UP, UP, OPEN, CLOSE, NOTHING);
 	}
 }
