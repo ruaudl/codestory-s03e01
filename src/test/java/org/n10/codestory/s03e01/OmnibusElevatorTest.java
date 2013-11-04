@@ -27,10 +27,10 @@ public class OmnibusElevatorTest {
 	public void shouldCycleWithState() {
 		ElevatorEngine elevator = new StateOmnibusElevator();
 		for (int j = 0; j < 10; j++) {
-			for (int i = 0; i < 5; i++) {
+			for (int i = 0; i < ElevatorEngine.HIGHER_FLOOR; i++) {
 				assertCommands(elevator, OPEN, CLOSE, UP);
 			}
-			for (int i = 0; i < 5; i++) {
+			for (int i = 0; i < ElevatorEngine.HIGHER_FLOOR; i++) {
 				assertCommands(elevator, OPEN, CLOSE, DOWN);
 			}
 		}
