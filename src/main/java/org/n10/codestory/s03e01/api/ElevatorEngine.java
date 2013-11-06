@@ -16,6 +16,6 @@ public interface ElevatorEngine {
 
     public ElevatorEngine userHasExited(User user) throws ElevatorIsBrokenException;
 
-    public ElevatorEngine reset(String cause) throws ElevatorIsBrokenException;
+    public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException;
 
 }

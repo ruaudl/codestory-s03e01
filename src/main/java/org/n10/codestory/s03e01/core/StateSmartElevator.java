@@ -13,7 +13,7 @@ public class StateSmartElevator implements ElevatorEngine {
 	private ElevatorState state;
 
 	public StateSmartElevator() {
-		reset("Init");
+		reset(ElevatorEngine.LOWER_FLOOR, ElevatorEngine.HIGHER_FLOOR, "Init");
 	}
 
 	@Override
@@ -65,8 +65,8 @@ public class StateSmartElevator implements ElevatorEngine {
 	}
 
 	@Override
-	public ElevatorEngine reset(String cause) throws ElevatorIsBrokenException {
-		state = new ElevatorState();
+	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException {
+		state = new ElevatorState(lowerFloor, higherFloor);
 		return this;
 	}
 

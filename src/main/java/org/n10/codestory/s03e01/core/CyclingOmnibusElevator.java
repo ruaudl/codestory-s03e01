@@ -42,7 +42,7 @@ public class CyclingOmnibusElevator implements ElevatorEngine {
 	}
 
 	@Override
-	public ElevatorEngine reset(String cause) throws ElevatorIsBrokenException {
+	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException {
 		return this;
 	}
 

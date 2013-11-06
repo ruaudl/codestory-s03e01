@@ -13,7 +13,7 @@ public class StateOmnibusElevator implements ElevatorEngine {
 	private Direction direction;
 
 	public StateOmnibusElevator() {
-		reset("Init");
+		reset(ElevatorEngine.LOWER_FLOOR, ElevatorEngine.HIGHER_FLOOR, "Init");
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class StateOmnibusElevator implements ElevatorEngine {
 	}
 
 	@Override
-	public ElevatorEngine reset(String cause) throws ElevatorIsBrokenException {
+	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException {
 		floor = 0;
 		direction = Direction.UP;
 		nextCommand = Command.OPEN;

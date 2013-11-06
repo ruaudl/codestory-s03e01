@@ -16,7 +16,7 @@ public class ListDirectElevator implements ElevatorEngine {
 	private List<Integer> targets;
 
 	public ListDirectElevator() {
-		reset("Init");
+		reset(ElevatorEngine.LOWER_FLOOR, ElevatorEngine.HIGHER_FLOOR, "Init");
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class ListDirectElevator implements ElevatorEngine {
 	}
 
 	@Override
-	public ElevatorEngine reset(String cause) throws ElevatorIsBrokenException {
+	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException {
 		floor = 0;
 		nextCommand = Command.NOTHING;
 		targets = new ArrayList<Integer>();

@@ -63,9 +63,11 @@ public class ElevatorApplication extends HttpServlet {
         	System.out.println(target);
             break;
         case "/reset":
+            Integer lowerFloor = Integer.valueOf(request.getParameter("lowerFloor"));
+            Integer higherFloor = Integer.valueOf(request.getParameter("higherFloor"));
             String cause = request.getParameter("cause");
             synchronized (elevator) {
-                elevator.reset(cause);
+                elevator.reset(lowerFloor, higherFloor, cause);
             }
             System.out.println(String.format("%s cause %s", target, cause));
             break;

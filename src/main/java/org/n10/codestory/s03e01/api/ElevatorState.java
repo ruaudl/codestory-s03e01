@@ -19,6 +19,15 @@ public class ElevatorState implements Cloneable {
 	public Command nextCommand;
 	public Direction direction;
 	public Collection<Target> targets;
+	public Integer lowerFloor;
+	public Integer higherFloor;
+	
+
+	public ElevatorState(Integer lowerFloor, Integer higherFloor) {
+		super();
+		this.lowerFloor = lowerFloor;
+		this.higherFloor = higherFloor;
+	}
 
 	private Predicate<Target> equalsFloor = new Predicate<Target>() {
 		public boolean apply(Target value) {
