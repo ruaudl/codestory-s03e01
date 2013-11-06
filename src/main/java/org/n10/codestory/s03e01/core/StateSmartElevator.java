@@ -36,7 +36,7 @@ public class StateSmartElevator implements ElevatorEngine {
 			state.doNothing();
 		}
 
-		if (currentCommand == Command.NOTHING && state.doSomething()) {
+		if (currentCommand == Command.NOTHING && state.willDoSomething()) {
 			currentCommand = nextCommand();
 		}
 		return currentCommand;

@@ -23,12 +23,6 @@ public class ElevatorState implements Cloneable {
 	public Integer higherFloor;
 	
 
-	public ElevatorState(Integer lowerFloor, Integer higherFloor) {
-		super();
-		this.lowerFloor = lowerFloor;
-		this.higherFloor = higherFloor;
-	}
-
 	private Predicate<Target> equalsFloor = new Predicate<Target>() {
 		public boolean apply(Target value) {
 			return value.getFloor() == floor;
@@ -62,8 +56,18 @@ public class ElevatorState implements Cloneable {
 		targets = new HashSet<Target>();
 	}
 
+	public ElevatorState(Integer lowerFloor, Integer higherFloor) {
+		this();
+		this.lowerFloor = lowerFloor;
+		this.higherFloor = higherFloor;
+	}
+
 	public boolean willOpen() {
 		return nextCommand == Command.OPEN;
+	}
+
+	public boolean willDoSomething() {
+		return nextCommand != Command.NOTHING;
 	}
 
 	private boolean hasTargets(Direction direction) {
@@ -145,10 +149,6 @@ public class ElevatorState implements Cloneable {
 			break;
 		}
 		return null;
-	}
-
-	public boolean doSomething() {
-		return nextCommand != Command.NOTHING;
 	}
 
 }
