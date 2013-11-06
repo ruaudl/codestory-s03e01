@@ -18,6 +18,8 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public Command nextCommand() throws ElevatorIsBrokenException {
+		System.out.println(state.printState());
+
 		Command currentCommand = state.nextCommand;
 
 		if (currentCommand == Command.CLOSE) {

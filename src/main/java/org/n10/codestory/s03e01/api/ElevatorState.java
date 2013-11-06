@@ -55,6 +55,7 @@ public class ElevatorState implements Cloneable {
 		direction = Direction.UP;
 		waitingTargets = new HashSet<Target>();
 		travelingTargets = new HashSet<Target>();
+		targetThreshold = -1;
 	}
 
 	public ElevatorState(Integer lowerFloor, Integer higherFloor) {
@@ -84,16 +85,6 @@ public class ElevatorState implements Cloneable {
 	}
 
 	public boolean shouldOpen() {
-		System.out.println("On est où ? " + floor);
-		System.out.println("On va où ? " + direction);
-		System.out.println("Quelqu'un veut sortir ? " + Iterables.tryFind(travelingTargets, equalsFloor).isPresent());
-		System.out.println("Quelqu'un veut continuer ? " + hasTargetsAhead());
-		System.out.println("Quelqu'un veut entrer ? " + Iterables.tryFind(waitingTargets, equalsFloor).isPresent());
-		System.out.println("Quelqu'un veut entrer dans le même sens ? " + Iterables.tryFind(waitingTargets, Predicates.and(equalsFloor, equalsDirection)).isPresent());
-		System.out.println("On est combien ? " + travelingTargets.size());
-		System.out.println("On est complet à combien ? " + targetThreshold);
-		System.out.println("On est complet ? " + !mayAddTargets());
-
 		if (Iterables.tryFind(travelingTargets, equalsFloor).isPresent()) {
 			return true;
 		}
@@ -141,6 +132,50 @@ public class ElevatorState implements Cloneable {
 
 	public void doReverse() {
 		doMove(inverse(direction));
+	}
+
+	public String printState() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("[");
+		
+		builder.append(String.format("%02d", floor));
+		
+		builder.append(":");
+		
+		if (direction == Direction.UP)
+			builder.append("∧");
+		if (direction == Direction.DOWN)
+			builder.append("∨");
+		
+		builder.append(":");
+		
+		builder.append(String.format("%02d/%02d", travelingTargets.size(), targetThreshold));
+		
+		builder.append(":");
+
+		if (Iterables.tryFind(travelingTargets, equalsFloor).isPresent())
+			builder.append("←");
+		else
+			builder.append(" ");
+
+		if (Iterables.tryFind(waitingTargets, Predicates.and(equalsFloor, equalsDirection)).isPresent())
+			builder.append("↗");
+		else if (Iterables.tryFind(waitingTargets, equalsFloor).isPresent())
+			builder.append("→");
+		else
+			builder.append(" ");
+		
+		builder.append(":");
+
+		if (hasTargetsAhead())
+			builder.append("↑");
+		else if (hasTargetsBehind())
+			builder.append("↺");
+		else
+			builder.append(" ");
+		
+		builder.append("]");
+		return builder.toString();
 	}
 
 	private void doMove(Direction direction) {
