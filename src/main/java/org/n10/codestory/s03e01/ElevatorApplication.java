@@ -62,9 +62,16 @@ public class ElevatorApplication extends HttpServlet {
         case "/userHasExited":
         	System.out.println(target);
             break;
+        case "/limit":
+            Integer threshold = Integer.valueOf(request.getParameter("threshold"));
+            synchronized (elevator) {
+                elevator.limit(threshold);
+            }
+            System.out.println(String.format("%s limit to %d", target, threshold));
+            break;
         case "/reset":
-            Integer lowerFloor = Integer.valueOf(request.getParameter("lowerFloor"));
-            Integer higherFloor = Integer.valueOf(request.getParameter("higherFloor"));
+            Integer lowerFloor = null;//Integer.valueOf(request.getParameter("lowerFloor"));
+            Integer higherFloor = null;//Integer.valueOf(request.getParameter("higherFloor"));
             String cause = request.getParameter("cause");
             synchronized (elevator) {
                 elevator.reset(lowerFloor, higherFloor, cause);

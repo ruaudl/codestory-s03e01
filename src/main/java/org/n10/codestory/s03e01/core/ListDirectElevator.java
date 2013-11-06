@@ -77,4 +77,9 @@ public class ListDirectElevator implements ElevatorEngine {
 		return this;
 	}
 
+	@Override
+	public ElevatorEngine limit(Integer i) {
+		return this;
+	}
+
 }

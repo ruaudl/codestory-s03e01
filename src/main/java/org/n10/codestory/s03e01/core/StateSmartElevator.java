@@ -44,13 +44,13 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public ElevatorEngine call(Integer atFloor, Direction to) throws ElevatorIsBrokenException {
-		state.targets.add(new Target(atFloor, to));
+		state.waitingTargets.add(new Target(atFloor, to));
 		return this;
 	}
 
 	@Override
 	public ElevatorEngine go(Integer floorToGo) throws ElevatorIsBrokenException {
-		state.targets.add(new Target(floorToGo, null));
+		state.travelingTargets.add(new Target(floorToGo, null));
 		return this;
 	}
 
@@ -67,6 +67,12 @@ public class StateSmartElevator implements ElevatorEngine {
 	@Override
 	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException {
 		state = new ElevatorState(lowerFloor, higherFloor);
+		return this;
+	}
+
+	@Override
+	public ElevatorEngine limit(Integer limit) {
+		state.targetThreshold = limit;
 		return this;
 	}
 

@@ -18,4 +18,6 @@ public interface ElevatorEngine {
 
     public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException;
 
+	public ElevatorEngine limit(Integer i);
+
 }

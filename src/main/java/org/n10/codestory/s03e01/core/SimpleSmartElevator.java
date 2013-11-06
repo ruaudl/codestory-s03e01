@@ -157,4 +157,9 @@ public class SimpleSmartElevator implements ElevatorEngine {
 		return this;
 	}
 
+	@Override
+	public ElevatorEngine limit(Integer i) {
+		return this;
+	}
+
 }

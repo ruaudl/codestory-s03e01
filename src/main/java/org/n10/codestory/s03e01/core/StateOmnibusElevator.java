@@ -73,4 +73,9 @@ public class StateOmnibusElevator implements ElevatorEngine {
 		return this;
 	}
 
+	@Override
+	public ElevatorEngine limit(Integer i) {
+		return this;
+	}
+
 }

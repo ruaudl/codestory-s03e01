@@ -12,15 +12,16 @@ import com.google.common.collect.Iterators;
 
 public class CyclingOmnibusElevator implements ElevatorEngine {
 
-	private Iterator<Command> cycle = Iterators.cycle(Command.UP, Command.OPEN, Command.CLOSE, Command.UP, Command.OPEN, Command.CLOSE, Command.UP, Command.OPEN, Command.CLOSE, Command.UP, Command.OPEN,
-			Command.CLOSE, Command.UP, Command.OPEN, Command.CLOSE, Command.DOWN, Command.OPEN, Command.CLOSE, Command.DOWN, Command.OPEN, Command.CLOSE, Command.DOWN, Command.OPEN, Command.CLOSE,
-			Command.DOWN, Command.OPEN, Command.CLOSE, Command.DOWN, Command.OPEN, Command.CLOSE);
+	private Iterator<Command> cycle = Iterators.cycle(Command.UP, Command.OPEN, Command.CLOSE, Command.UP, Command.OPEN, Command.CLOSE, Command.UP,
+			Command.OPEN, Command.CLOSE, Command.UP, Command.OPEN, Command.CLOSE, Command.UP, Command.OPEN, Command.CLOSE, Command.DOWN, Command.OPEN,
+			Command.CLOSE, Command.DOWN, Command.OPEN, Command.CLOSE, Command.DOWN, Command.OPEN, Command.CLOSE, Command.DOWN, Command.OPEN, Command.CLOSE,
+			Command.DOWN, Command.OPEN, Command.CLOSE);
 
 	@Override
 	public Command nextCommand() throws ElevatorIsBrokenException {
 		return cycle.next();
 	}
-	
+
 	@Override
 	public ElevatorEngine call(Integer atFloor, Direction to) throws ElevatorIsBrokenException {
 		return this;
@@ -43,6 +44,11 @@ public class CyclingOmnibusElevator implements ElevatorEngine {
 
 	@Override
 	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException {
+		return this;
+	}
+
+	@Override
+	public ElevatorEngine limit(Integer i) {
 		return this;
 	}
 
