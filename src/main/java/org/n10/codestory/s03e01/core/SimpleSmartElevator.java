@@ -52,7 +52,7 @@ public class SimpleSmartElevator implements ElevatorEngine {
 	}
 
 	public SimpleSmartElevator() {
-		reset("Init");
+		reset(ElevatorEngine.LOWER_FLOOR, ElevatorEngine.HIGHER_FLOOR, "Init");
 	}
 
 	@Override
@@ -149,11 +149,16 @@ public class SimpleSmartElevator implements ElevatorEngine {
 	}
 
 	@Override
-	public ElevatorEngine reset(String cause) throws ElevatorIsBrokenException {
+	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException {
 		floor = 0;
 		nextCommand = Command.NOTHING;
 		direction = Direction.UP;
 		targets = new HashSet<Target>();
+		return this;
+	}
+
+	@Override
+	public ElevatorEngine limit(Integer i) {
 		return this;
 	}
 
