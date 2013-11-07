@@ -70,4 +70,9 @@ public class StateSmartElevator implements ElevatorEngine {
 		return this;
 	}
 
+    @Override
+    public String toString() {
+        return String.format("Current floor : %s - Current direction %s", state.floor, state.direction);
+    }
+        
 }
