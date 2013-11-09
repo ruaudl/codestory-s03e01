@@ -15,7 +15,7 @@ public class SetDirectElevator implements ElevatorEngine {
 	private LinkedHashSet<Integer> targets;
 
 	public SetDirectElevator() {
-		reset("Init");
+		reset(ElevatorEngine.LOWER_FLOOR, ElevatorEngine.HIGHER_FLOOR, "Init");
 	}
 
 	@Override
@@ -69,10 +69,15 @@ public class SetDirectElevator implements ElevatorEngine {
 	}
 
 	@Override
-	public ElevatorEngine reset(String cause) throws ElevatorIsBrokenException {
+	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException {
 		floor = 0;
 		nextCommand = Command.NOTHING;
 		targets = new LinkedHashSet<Integer>();
+		return this;
+	}
+
+	@Override
+	public ElevatorEngine limit(Integer i) {
 		return this;
 	}
 

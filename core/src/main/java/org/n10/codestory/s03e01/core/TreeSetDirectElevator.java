@@ -34,7 +34,7 @@ public class TreeSetDirectElevator implements ElevatorEngine {
 	}
 
 	public TreeSetDirectElevator() {
-		reset("Init");
+		reset(ElevatorEngine.LOWER_FLOOR, ElevatorEngine.HIGHER_FLOOR, "Init");
 	}
 
 	@Override
@@ -115,11 +115,16 @@ public class TreeSetDirectElevator implements ElevatorEngine {
 	}
 
 	@Override
-	public ElevatorEngine reset(String cause) throws ElevatorIsBrokenException {
+	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException {
 		floor = 0;
 		nextCommand = Command.NOTHING;
 		direction = Direction.UP;
 		targets = new HashSet<Integer>();
+		return this;
+	}
+
+	@Override
+	public ElevatorEngine limit(Integer i) {
 		return this;
 	}
 

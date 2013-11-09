@@ -13,11 +13,13 @@ public class StateSmartElevator implements ElevatorEngine {
 	private ElevatorState state;
 
 	public StateSmartElevator() {
-		reset("Init");
+		reset(ElevatorEngine.LOWER_FLOOR, ElevatorEngine.HIGHER_FLOOR, "Init");
 	}
 
 	@Override
 	public Command nextCommand() throws ElevatorIsBrokenException {
+		System.out.println(state.printState());
+
 		Command currentCommand = state.nextCommand;
 
 		if (currentCommand == Command.CLOSE) {
@@ -36,7 +38,7 @@ public class StateSmartElevator implements ElevatorEngine {
 			state.doNothing();
 		}
 
-		if (currentCommand == Command.NOTHING && state.doSomething()) {
+		if (currentCommand == Command.NOTHING && state.willDoSomething()) {
 			currentCommand = nextCommand();
 		}
 		return currentCommand;
@@ -44,13 +46,13 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public ElevatorEngine call(Integer atFloor, Direction to) throws ElevatorIsBrokenException {
-		state.targets.add(new Target(atFloor, to));
+		state.waitingTargets.add(new Target(atFloor, to));
 		return this;
 	}
 
 	@Override
 	public ElevatorEngine go(Integer floorToGo) throws ElevatorIsBrokenException {
-		state.targets.add(new Target(floorToGo, null));
+		state.travelingTargets.add(new Target(floorToGo, null));
 		return this;
 	}
 
@@ -65,8 +67,16 @@ public class StateSmartElevator implements ElevatorEngine {
 	}
 
 	@Override
-	public ElevatorEngine reset(String cause) throws ElevatorIsBrokenException {
-		state = new ElevatorState();
+	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException {
+		ElevatorState newState = new ElevatorState(lowerFloor, higherFloor);
+		newState.targetThreshold = state.targetThreshold;
+		state = newState;
+		return this;
+	}
+
+	@Override
+	public ElevatorEngine limit(Integer limit) {
+		state.targetThreshold = limit;
 		return this;
 	}
 
