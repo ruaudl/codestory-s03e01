@@ -38,6 +38,9 @@ public class ElevatorServer implements Container {
 		response.setCode(200);
 
 		String target = request.getPath().getRelative("/");
+		if ("/resets".equals(target)) {
+			response.setValue("Content-Type", "text/html");
+		}
 
 		ElevatorRequest elevatorRequest = new ElevatorRequest();
 		elevatorRequest.setTarget(target);

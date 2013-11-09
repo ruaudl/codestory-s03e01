@@ -17,6 +17,7 @@ public class ElevatorPlayer {
 	public static final String[] PARAMS = new String[] { "atFloor", "to", "floorToGo", "threshold", "lowerFloor", "higherFloor", "cause" };
 
 	private ElevatorEngine elevator = new StateSmartElevator();
+	private TreeMap<String, String> resets = new TreeMap<String, String>();
 
 	public void play(ElevatorRequest request, PrintStream stream) throws IOException {
 		switch (request.getTarget()) {
@@ -66,7 +67,19 @@ public class ElevatorPlayer {
 				elevator.reset(lowerFloor, higherFloor, cause);
 			}
 
+			resets.put(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()), cause);
+			while (resets.size() > 20) {
+				resets.remove(resets.firstKey());
+			}
+
 			System.out.println(String.format("%s cause %s", request.getTarget(), cause));
+			break;
+		case "/resets":
+			stream.println("<head><meta http-equiv=\"refresh\" content=\"5\"></head><body>");
+			for (Entry<String, String> reset : resets.entrySet()) {
+				stream.println(String.format("%s: %s<br/>", reset.getKey(), reset.getValue()));
+			}
+			stream.println("</body>");
 			break;
 		default:
 			System.out.println(request.getTarget());
