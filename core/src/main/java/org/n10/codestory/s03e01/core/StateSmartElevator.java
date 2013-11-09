@@ -69,7 +69,9 @@ public class StateSmartElevator implements ElevatorEngine {
 	@Override
 	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException {
 		ElevatorState newState = new ElevatorState(lowerFloor, higherFloor);
-		newState.targetThreshold = state.targetThreshold;
+		if (state != null) {
+			newState.targetThreshold = state.targetThreshold;
+		}
 		state = newState;
 		return this;
 	}
