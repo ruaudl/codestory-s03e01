@@ -26,7 +26,7 @@ public class ElevatorState implements Cloneable {
 	public Integer higherFloor;
 	public Integer targetThreshold;
 	public Integer cabinSize;
-	
+
 	private Predicate<Target> equalsFloor = new Predicate<Target>() {
 		public boolean apply(Target value) {
 			return value.getFloor() == floor;
@@ -212,34 +212,34 @@ public class ElevatorState implements Cloneable {
 
 	private void doMove(Direction direction) {
 		switch (direction) {
-			case UP:
-				floor++;
-				nextCommand = Command.UP;
-				this.direction = Direction.UP;
-				break;
-			case DOWN:
-				floor--;
-				nextCommand = Command.DOWN;
-				this.direction = Direction.DOWN;
-			default:
-				break;
+		case UP:
+			floor++;
+			nextCommand = Command.UP;
+			this.direction = Direction.UP;
+			break;
+		case DOWN:
+			floor--;
+			nextCommand = Command.DOWN;
+			this.direction = Direction.DOWN;
+		default:
+			break;
 		}
 	}
 
 	private Direction inverse(Direction direction) {
 		switch (direction) {
-			case UP:
-				return Direction.DOWN;
-			case DOWN:
-				return Direction.UP;
-			default:
-				break;
+		case UP:
+			return Direction.DOWN;
+		case DOWN:
+			return Direction.UP;
+		default:
+			break;
 		}
 		return null;
 	}
-	
+
 	private int getLimit() {
 		return ((higherFloor - lowerFloor) + 1) / 3;
 	}
-			
+
 }

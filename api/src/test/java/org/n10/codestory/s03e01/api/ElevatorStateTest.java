@@ -57,7 +57,7 @@ public class ElevatorStateTest {
 		elevatorState.waitingTargets.put(4, queue);
 		assertThat(elevatorState.hasTargetsBehind()).isFalse();
 	}
-	
+
 	@Test
 	public void limitIsOk() {
 		ElevatorState elevator = new ElevatorState(0, 19, 42);
