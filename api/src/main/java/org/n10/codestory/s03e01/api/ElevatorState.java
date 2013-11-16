@@ -53,10 +53,11 @@ public class ElevatorState implements Cloneable {
 		direction = Direction.UP;
 		waitingTargets = new HashMap<>();
 		travelingTargets = new HashSet<>();
-		targetThreshold = -1;
 		this.lowerFloor = ElevatorEngine.LOWER_FLOOR;
 		this.higherFloor = ElevatorEngine.HIGHER_FLOOR;
 		this.cabinSize = ElevatorEngine.CABIN_SIZE;
+		this.currentTravelersNb = 0;
+		targetThreshold = getLimit();
 	}
 
 	public ElevatorState(Integer lowerFloor, Integer higherFloor, Integer cabinSize) {
@@ -65,6 +66,7 @@ public class ElevatorState implements Cloneable {
 		this.higherFloor = higherFloor;
 		this.cabinSize = cabinSize;
 		this.currentTravelersNb = 0;
+		targetThreshold = getLimit();
 	}
 
 	public boolean willOpen() {
@@ -235,4 +237,9 @@ public class ElevatorState implements Cloneable {
 		}
 		return null;
 	}
+	
+	private int getLimit() {
+		return ((higherFloor - lowerFloor) + 1) / 3;
+	}
+			
 }
