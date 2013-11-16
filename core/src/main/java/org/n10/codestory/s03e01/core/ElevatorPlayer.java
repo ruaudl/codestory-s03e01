@@ -12,13 +12,14 @@ import org.n10.codestory.s03e01.api.ElevatorEngine;
 
 public class ElevatorPlayer {
 
+	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 	public static final String[] PARAMS = new String[] { "atFloor", "to", "floorToGo", "threshold", "lowerFloor", "higherFloor", "cause", "cabinSize" };
 	private ElevatorEngine elevator = new StateSmartElevator();
 	private TreeMap<String, String> resets = new TreeMap<String, String>();
 
 	public void play(ElevatorRequest request, PrintStream stream) throws IOException {
 		StringBuilder logBuilder = new StringBuilder();
-		logBuilder.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+		logBuilder.append(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
 		logBuilder.append(" ").append(elevator.printState());
 
 		String logTarget = "";
@@ -32,7 +33,7 @@ public class ElevatorPlayer {
 			logTarget = String.format("[%s = %s]", request.getTarget(), command);
 			break;
 		case "/call":
-			Integer atFloor = Integer.valueOf(request.getParameter("atFloor"));
+			Integer atFloor = request.getParameterAsInteger("atFloor");
 			Direction to = Direction.valueOf(request.getParameter("to"));
 			synchronized (elevator) {
 				elevator.call(atFloor, to);
@@ -40,7 +41,7 @@ public class ElevatorPlayer {
 			logTarget = String.format("[%s atFloor %d to go %s]", request.getTarget(), atFloor, to);
 			break;
 		case "/go":
-			Integer floorToGo = Integer.valueOf(request.getParameter("floorToGo"));
+			Integer floorToGo = request.getParameterAsInteger("floorToGo");
 			synchronized (elevator) {
 				elevator.go(floorToGo);
 			}
@@ -59,36 +60,22 @@ public class ElevatorPlayer {
 			logTarget = String.format("[%s]", request.getTarget());
 			break;
 		case "/limit":
-			Integer threshold = Integer.valueOf(request.getParameter("threshold"));
+			Integer threshold = request.getParameterAsInteger("threshold");
 			synchronized (elevator) {
 				elevator.limit(threshold);
 			}
 			logTarget = String.format("[%s limit to %d]", request.getTarget(), threshold);
 			break;
 		case "/reset":
-			Integer lowerFloor = null;
-			if (request.getParameter("lowerFloor") != null) {
-				lowerFloor = Integer.valueOf(request.getParameter("lowerFloor"));
-			}
-			Integer higherFloor = null;
-			if (request.getParameter("higherFloor") != null) {
-				higherFloor = Integer.valueOf(request.getParameter("higherFloor"));
-			}
-			Integer cabinSize = null;
-			if (request.getParameter("cabinSize") != null) {
-				cabinSize = Integer.valueOf(request.getParameter("cabinSize"));
-			}
+			Integer lowerFloor = request.getParameterAsInteger("lowerFloor");
+			Integer higherFloor = request.getParameterAsInteger("higherFloor");
+			Integer cabinSize = request.getParameterAsInteger("cabinSize");
 			String cause = request.getParameter("cause");
 			synchronized (elevator) {
 				elevator.reset(lowerFloor, higherFloor, cabinSize, cause);
 			}
-
-			resets.put(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()), cause);
-			while (resets.size() > 20) {
-				resets.remove(resets.firstKey());
-			}
-
-			logTarget = String.format("[%s cause %s]", request.getTarget(), cause);
+			logTarget = String.format("[%s cause %s from %s to %s max %s]", request.getTarget(), cause, lowerFloor, higherFloor, cabinSize);
+			registerReset(logTarget);
 			break;
 		case "/resets":
 			stream.println("<head><meta http-equiv=\"refresh\" content=\"5\"></head><body>");
@@ -103,8 +90,15 @@ public class ElevatorPlayer {
 		}
 		logBuilder.append(String.format(" %-50s ", logTarget));
 
-		logBuilder.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+		logBuilder.append(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
 		logBuilder.append(" ").append(elevator.printState()).append(" ");
 		System.out.println(logBuilder.toString());
+	}
+
+	private void registerReset(String log) {
+		resets.put(new SimpleDateFormat(DATE_FORMAT).format(new Date()), log);
+		while (resets.size() > 20) {
+			resets.remove(resets.firstKey());
+		}
 	}
 }

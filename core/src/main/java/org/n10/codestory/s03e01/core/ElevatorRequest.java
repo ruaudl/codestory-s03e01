@@ -38,4 +38,12 @@ public class ElevatorRequest {
 		this.parameters.put(key, value);
 	}
 
+	public Integer getParameterAsInteger(String key) {
+		if (parameters == null && parameters.get(key) == null) {
+			return null;
+		}
+
+		return Integer.valueOf(parameters.get(key));
+	}
+
 }
