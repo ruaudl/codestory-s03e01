@@ -5,6 +5,7 @@ public interface ElevatorEngine {
 
     public final static Integer LOWER_FLOOR = 0;
     public final static Integer HIGHER_FLOOR = 19;
+    public final static Integer CABIN_SIZE = 42;
 
     public ElevatorEngine call(Integer atFloor, Direction to) throws ElevatorIsBrokenException;
 
@@ -16,8 +17,8 @@ public interface ElevatorEngine {
 
     public ElevatorEngine userHasExited(User user) throws ElevatorIsBrokenException;
 
-    public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, String cause) throws ElevatorIsBrokenException;
+    public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, Integer cabinSize, String cause) throws ElevatorIsBrokenException;
 
-	public ElevatorEngine limit(Integer i);
+    public ElevatorEngine limit(Integer i);
 
 }

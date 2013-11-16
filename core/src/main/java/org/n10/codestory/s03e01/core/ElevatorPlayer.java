@@ -62,9 +62,13 @@ public class ElevatorPlayer {
 			if (request.getParameter("higherFloor") != null) {
 				higherFloor = Integer.valueOf(request.getParameter("higherFloor"));
 			}
+                        Integer cabinSize = null;
+			if (request.getParameter("cabinSize") != null) {
+				higherFloor = Integer.valueOf(request.getParameter("cabinSize"));
+			}
 			String cause = request.getParameter("cause");
 			synchronized (elevator) {
-				elevator.reset(lowerFloor, higherFloor, cause);
+				elevator.reset(lowerFloor, higherFloor, cabinSize, cause);
 			}
 
 			resets.put(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()), cause);
