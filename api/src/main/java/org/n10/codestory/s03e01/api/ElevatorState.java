@@ -91,6 +91,7 @@ public class ElevatorState implements Cloneable {
                 return hasAhead && entry.getValue()!= null && !entry.getValue().isEmpty();
             }
         }).isPresent();
+        System.err.println("hasWaiting = " + hasWaiting);
         return hasWaiting || Iterables.tryFind(Ordering.natural().sortedCopy(travelingTargets), isAhead.get(direction)).isPresent();
     }
 
@@ -103,16 +104,19 @@ public class ElevatorState implements Cloneable {
     }
 
     public boolean shouldOpen() {
+        System.out.println("shouldOpen");
         if (Iterables.tryFind(travelingTargets, equalsFloor).isPresent()) {
+            System.out.println("il y a des traveling targets à cet étage");
             return true;
         }
         Queue<Direction> directions = waitingTargets.get(floor);
         boolean waitingTargetPresent = directions != null && !directions.isEmpty();
-
+        System.out.println("il y a des waiting targets à cet étage ? " + waitingTargetPresent);
         if (hasTargetsAhead()) {
+            System.out.println("il y a des targets ahead");
             waitingTargetPresent = waitingTargetPresent && Iterables.tryFind(directions, Predicates.equalTo(direction)).isPresent();
         }
-
+            System.out.println("waitingTarget = " + waitingTargetPresent);
         return waitingTargetPresent && mayAddTargets();
     }
 
@@ -125,7 +129,9 @@ public class ElevatorState implements Cloneable {
     }
 
     public void popWaiting() {
+        System.out.println("popWaiting : " + waitingTargets.get(floor).size());
         waitingTargets.get(floor).remove();
+        System.out.println("apres popWaiting : " + waitingTargets.get(floor).size());
     }
 
     public void doOpen() {
