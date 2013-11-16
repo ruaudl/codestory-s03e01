@@ -2,7 +2,6 @@ package org.n10.codestory.s03e01.core;
 
 import java.util.LinkedList;
 import java.util.Queue;
-
 import org.n10.codestory.s03e01.api.Command;
 import org.n10.codestory.s03e01.api.Direction;
 import org.n10.codestory.s03e01.api.ElevatorEngine;
@@ -67,11 +66,13 @@ public class StateSmartElevator implements ElevatorEngine {
 	@Override
 	public ElevatorEngine userHasEntered(User user) throws ElevatorIsBrokenException {
 		state.popWaiting();
+		state.currentTravelersNb++;
 		return this;
 	}
 
 	@Override
 	public ElevatorEngine userHasExited(User user) throws ElevatorIsBrokenException {
+		state.currentTravelersNb--;
 		return this;
 	}
 

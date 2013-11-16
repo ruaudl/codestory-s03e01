@@ -3,8 +3,6 @@ package org.n10.codestory.s03e01.api;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.Set;
 
 import com.google.common.base.Predicate;
@@ -13,10 +11,13 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
+import java.util.Map.Entry;
+import java.util.Queue;
 
 public class ElevatorState implements Cloneable {
 
 	public int floor;
+	public int currentTravelersNb;
 	public Command nextCommand;
 	public Direction direction;
 	public Map<Integer, Queue<Direction>> waitingTargets = new HashMap<>();
@@ -25,7 +26,7 @@ public class ElevatorState implements Cloneable {
 	public Integer higherFloor;
 	public Integer targetThreshold;
 	public Integer cabinSize;
-
+	
 	private Predicate<Target> equalsFloor = new Predicate<Target>() {
 		public boolean apply(Target value) {
 			return value.getFloor() == floor;
@@ -63,6 +64,7 @@ public class ElevatorState implements Cloneable {
 		this.lowerFloor = lowerFloor;
 		this.higherFloor = higherFloor;
 		this.cabinSize = cabinSize;
+		this.currentTravelersNb = 0;
 	}
 
 	public boolean willOpen() {
@@ -99,20 +101,19 @@ public class ElevatorState implements Cloneable {
 	}
 
 	public boolean shouldOpen() {
-		System.out.println("shouldOpen");
 		if (Iterables.tryFind(travelingTargets, equalsFloor).isPresent()) {
-			System.out.println("il y a des traveling targets à cet étage");
 			return true;
 		}
-		Queue<Direction> directions = waitingTargets.get(floor);
-		boolean waitingTargetPresent = directions != null && !directions.isEmpty();
-		System.out.println("il y a des waiting targets à cet étage ? " + waitingTargetPresent);
-		if (hasTargetsAhead()) {
-			System.out.println("il y a des targets ahead");
-			waitingTargetPresent = waitingTargetPresent && Iterables.tryFind(directions, Predicates.equalTo(direction)).isPresent();
+
+		if (currentTravelersNb < cabinSize) {
+			Queue<Direction> directions = waitingTargets.get(floor);
+			boolean waitingTargetPresent = directions != null && !directions.isEmpty();
+			if (hasTargetsAhead()) {
+				waitingTargetPresent = waitingTargetPresent && Iterables.tryFind(directions, Predicates.equalTo(direction)).isPresent();
+			}
+			return waitingTargetPresent && mayAddTargets();
 		}
-		System.out.println("waitingTarget = " + waitingTargetPresent);
-		return waitingTargetPresent && mayAddTargets();
+		return false;
 	}
 
 	public boolean mayAddTargets() {
@@ -180,7 +181,7 @@ public class ElevatorState implements Cloneable {
 		builder.append(":");
 
 		if (Iterables.tryFind(travelingTargets, equalsFloor).isPresent()) {
-			builder.append("<");
+			builder.append("â†?");
 		} else {
 			builder.append(" ");
 		}
@@ -209,28 +210,28 @@ public class ElevatorState implements Cloneable {
 
 	private void doMove(Direction direction) {
 		switch (direction) {
-		case UP:
-			floor++;
-			nextCommand = Command.UP;
-			this.direction = Direction.UP;
-			break;
-		case DOWN:
-			floor--;
-			nextCommand = Command.DOWN;
-			this.direction = Direction.DOWN;
-		default:
-			break;
+			case UP:
+				floor++;
+				nextCommand = Command.UP;
+				this.direction = Direction.UP;
+				break;
+			case DOWN:
+				floor--;
+				nextCommand = Command.DOWN;
+				this.direction = Direction.DOWN;
+			default:
+				break;
 		}
 	}
 
 	private Direction inverse(Direction direction) {
 		switch (direction) {
-		case UP:
-			return Direction.DOWN;
-		case DOWN:
-			return Direction.UP;
-		default:
-			break;
+			case UP:
+				return Direction.DOWN;
+			case DOWN:
+				return Direction.UP;
+			default:
+				break;
 		}
 		return null;
 	}
