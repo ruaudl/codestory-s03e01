@@ -1,10 +1,9 @@
 package org.n10.codestory.s03e01.api;
 
-
-public class Target implements Comparable<Target>{
+public class Target implements Comparable<Target> {
 
 	private int floor;
-	
+
 	private Direction direction;
 
 	public Target(int floor, Direction direction) {
@@ -28,43 +27,41 @@ public class Target implements Comparable<Target>{
 	public void setDirection(Direction directionToGo) {
 		this.direction = directionToGo;
 	}
-	
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null){
+		if (obj == null) {
 			return false;
 		}
-		
-		if(!(obj instanceof Target)){
+
+		if (!(obj instanceof Target)) {
 			return false;
 		}
 		Target objTarget = (Target) obj;
 		if (floor != objTarget.floor) {
 			return false;
 		}
-		
+
 		return (direction == objTarget.direction);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int hash = 17 * floor;
-		if (direction != null){
+		if (direction != null) {
 			hash += 31 * direction.hashCode();
 		}
-		return hash; 
+		return hash;
 	}
 
 	@Override
 	public int compareTo(Target o) {
 		return floor - o.floor;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "" + floor + direction;
 	}
-	
-	
+
 }

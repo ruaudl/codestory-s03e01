@@ -3,6 +3,8 @@ package org.n10.codestory.s03e01.api;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
 
 import com.google.common.base.Predicate;
@@ -11,232 +13,225 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import java.util.Map.Entry;
-import java.util.Queue;
 
 public class ElevatorState implements Cloneable {
 
-    public int floor;
-    public Command nextCommand;
-    public Direction direction;
-//	public Set<Target> waitingTargets;
-    public Set<Target> travelingTargets;
-    public Integer lowerFloor;
-    public Integer higherFloor;
-    public Integer targetThreshold;
-    public Integer cabinSize;
-    public Map<Integer, Queue<Direction>> waitingTargets = new HashMap<>();
-    private Predicate<Target> equalsFloor = new Predicate<Target>() {
-        public boolean apply(Target value) {
-            return value.getFloor() == floor;
-        }
-    };
-    private Predicate<Target> equalsDirection = new Predicate<Target>() {
-        public boolean apply(Target value) {
-            return value.getDirection() == null || value.getDirection() == direction;
-        }
-    };
-    private Map<Direction, Predicate<Target>> isAhead = new HashMap<Direction, Predicate<Target>>();
+	public int floor;
+	public Command nextCommand;
+	public Direction direction;
+	public Map<Integer, Queue<Direction>> waitingTargets = new HashMap<>();
+	public Set<Target> travelingTargets;
+	public Integer lowerFloor;
+	public Integer higherFloor;
+	public Integer targetThreshold;
+	public Integer cabinSize;
 
-    {
-        isAhead.put(Direction.UP, new Predicate<Target>() {
-            public boolean apply(Target value) {
-                return value.getFloor() > floor;
-            }
-        });
-        isAhead.put(Direction.DOWN, new Predicate<Target>() {
-            public boolean apply(Target value) {
-                return value.getFloor() < floor;
-            }
-        });
-    }
+	private Predicate<Target> equalsFloor = new Predicate<Target>() {
+		public boolean apply(Target value) {
+			return value.getFloor() == floor;
+		}
+	};
 
-    public ElevatorState() {
-        floor = 0;
-        nextCommand = Command.NOTHING;
-        direction = Direction.UP;
-        waitingTargets = new HashMap<>();
-        travelingTargets = new HashSet<>();
-        targetThreshold = -1;
-        this.lowerFloor = ElevatorEngine.LOWER_FLOOR;
-        this.higherFloor = ElevatorEngine.HIGHER_FLOOR;
-        this.cabinSize = ElevatorEngine.CABIN_SIZE;
-    }
+	private Map<Direction, Predicate<Target>> isAhead = new HashMap<Direction, Predicate<Target>>();
+	{
+		isAhead.put(Direction.UP, new Predicate<Target>() {
+			public boolean apply(Target value) {
+				return value.getFloor() > floor;
+			}
+		});
+		isAhead.put(Direction.DOWN, new Predicate<Target>() {
+			public boolean apply(Target value) {
+				return value.getFloor() < floor;
+			}
+		});
+	}
 
-    public ElevatorState(Integer lowerFloor, Integer higherFloor, Integer cabinSize) {
-        this();
-        this.lowerFloor = lowerFloor;
-        this.higherFloor = higherFloor;
-        this.cabinSize = cabinSize;
-    }
+	public ElevatorState() {
+		floor = 0;
+		nextCommand = Command.NOTHING;
+		direction = Direction.UP;
+		waitingTargets = new HashMap<>();
+		travelingTargets = new HashSet<>();
+		targetThreshold = -1;
+		this.lowerFloor = ElevatorEngine.LOWER_FLOOR;
+		this.higherFloor = ElevatorEngine.HIGHER_FLOOR;
+		this.cabinSize = ElevatorEngine.CABIN_SIZE;
+	}
 
-    public boolean willOpen() {
-        return nextCommand == Command.OPEN;
-    }
+	public ElevatorState(Integer lowerFloor, Integer higherFloor, Integer cabinSize) {
+		this();
+		this.lowerFloor = lowerFloor;
+		this.higherFloor = higherFloor;
+		this.cabinSize = cabinSize;
+	}
 
-    public boolean willDoSomething() {
-        return nextCommand != Command.NOTHING;
-    }
+	public boolean willOpen() {
+		return nextCommand == Command.OPEN;
+	}
 
-    private boolean hasTargets(final Direction direction) {
-        boolean hasWaiting = Iterables.tryFind(waitingTargets.entrySet(), new Predicate<Entry<Integer, Queue<Direction>>>(){
-            @Override
-            public boolean apply(Entry<Integer, Queue<Direction>> entry) {
-                boolean hasAhead = true;
-                if(direction.equals(Direction.UP)) {
-                    hasAhead = hasAhead && entry.getKey() > floor;
-                } else if(direction.equals(Direction.DOWN)) {
-                    hasAhead = hasAhead && entry.getKey() < floor;
-                }
-                return hasAhead && entry.getValue()!= null && !entry.getValue().isEmpty();
-            }
-        }).isPresent();
-        System.err.println("hasWaiting = " + hasWaiting);
-        return hasWaiting || Iterables.tryFind(Ordering.natural().sortedCopy(travelingTargets), isAhead.get(direction)).isPresent();
-    }
+	public boolean willDoSomething() {
+		return nextCommand != Command.NOTHING;
+	}
 
-    public boolean hasTargetsAhead() {
-        return hasTargets(direction);
-    }
+	private boolean hasTargets(final Direction direction) {
+		boolean hasWaiting = Iterables.tryFind(waitingTargets.entrySet(), new Predicate<Entry<Integer, Queue<Direction>>>() {
+			@Override
+			public boolean apply(Entry<Integer, Queue<Direction>> entry) {
+				boolean hasAhead = true;
+				if (direction.equals(Direction.UP)) {
+					hasAhead = hasAhead && entry.getKey() > floor;
+				} else if (direction.equals(Direction.DOWN)) {
+					hasAhead = hasAhead && entry.getKey() < floor;
+				}
+				return hasAhead && entry.getValue() != null && !entry.getValue().isEmpty();
+			}
+		}).isPresent();
+		System.err.println("hasWaiting = " + hasWaiting);
+		return hasWaiting || Iterables.tryFind(Ordering.natural().sortedCopy(travelingTargets), isAhead.get(direction)).isPresent();
+	}
 
-    public boolean hasTargetsBehind() {
-        return hasTargets(inverse(direction));
-    }
+	public boolean hasTargetsAhead() {
+		return hasTargets(direction);
+	}
 
-    public boolean shouldOpen() {
-        System.out.println("shouldOpen");
-        if (Iterables.tryFind(travelingTargets, equalsFloor).isPresent()) {
-            System.out.println("il y a des traveling targets � cet �tage");
-            return true;
-        }
-        Queue<Direction> directions = waitingTargets.get(floor);
-        boolean waitingTargetPresent = directions != null && !directions.isEmpty();
-        System.out.println("il y a des waiting targets � cet �tage ? " + waitingTargetPresent);
-        if (hasTargetsAhead()) {
-            System.out.println("il y a des targets ahead");
-            waitingTargetPresent = waitingTargetPresent && Iterables.tryFind(directions, Predicates.equalTo(direction)).isPresent();
-        }
-            System.out.println("waitingTarget = " + waitingTargetPresent);
-        return waitingTargetPresent && mayAddTargets();
-    }
+	public boolean hasTargetsBehind() {
+		return hasTargets(inverse(direction));
+	}
 
-    public boolean mayAddTargets() {
-        return targetThreshold == null || targetThreshold <= 0 || travelingTargets.size() < targetThreshold;
-    }
+	public boolean shouldOpen() {
+		System.out.println("shouldOpen");
+		if (Iterables.tryFind(travelingTargets, equalsFloor).isPresent()) {
+			System.out.println("il y a des traveling targets à cet étage");
+			return true;
+		}
+		Queue<Direction> directions = waitingTargets.get(floor);
+		boolean waitingTargetPresent = directions != null && !directions.isEmpty();
+		System.out.println("il y a des waiting targets à cet étage ? " + waitingTargetPresent);
+		if (hasTargetsAhead()) {
+			System.out.println("il y a des targets ahead");
+			waitingTargetPresent = waitingTargetPresent && Iterables.tryFind(directions, Predicates.equalTo(direction)).isPresent();
+		}
+		System.out.println("waitingTarget = " + waitingTargetPresent);
+		return waitingTargetPresent && mayAddTargets();
+	}
 
-    public void clearTraveling() {
-        travelingTargets = Sets.newHashSet(Collections2.filter(travelingTargets, Predicates.not(equalsFloor)));
-    }
+	public boolean mayAddTargets() {
+		return targetThreshold == null || targetThreshold <= 0 || travelingTargets.size() < targetThreshold;
+	}
 
-    public void popWaiting() {
-        System.out.println("popWaiting : " + waitingTargets.get(floor).size());
-        waitingTargets.get(floor).remove();
-        System.out.println("apres popWaiting : " + waitingTargets.get(floor).size());
-    }
+	public void clearTraveling() {
+		travelingTargets = Sets.newHashSet(Collections2.filter(travelingTargets, Predicates.not(equalsFloor)));
+	}
 
-    public void doOpen() {
-        nextCommand = Command.OPEN;
-    }
+	public void popWaiting() {
+		System.out.println("popWaiting : " + waitingTargets.get(floor).size());
+		waitingTargets.get(floor).remove();
+		System.out.println("apres popWaiting : " + waitingTargets.get(floor).size());
+	}
 
-    public void doClose() {
-        nextCommand = Command.CLOSE;
-    }
+	public void doOpen() {
+		nextCommand = Command.OPEN;
+	}
 
-    public void doNothing() {
-        nextCommand = Command.NOTHING;
-    }
+	public void doClose() {
+		nextCommand = Command.CLOSE;
+	}
 
-    @Override
-    public ElevatorState clone() {
-        try {
-            return (ElevatorState) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	public void doNothing() {
+		nextCommand = Command.NOTHING;
+	}
 
-    public void doContinue() {
-        doMove(direction);
-    }
+	@Override
+	public ElevatorState clone() {
+		try {
+			return (ElevatorState) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    public void doReverse() {
-        doMove(inverse(direction));
-    }
+	public void doContinue() {
+		doMove(direction);
+	}
 
-    public String printState() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("[");
+	public void doReverse() {
+		doMove(inverse(direction));
+	}
 
-        builder.append(String.format("%02d", floor));
+	public String printState() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("[");
 
-        builder.append(":");
+		builder.append(String.format("%02d", floor));
 
-        if (direction == Direction.UP) {
-            builder.append("∧");
-        }
-        if (direction == Direction.DOWN) {
-            builder.append("∨");
-        }
+		builder.append(":");
 
-        builder.append(":");
+		if (direction == Direction.UP) {
+			builder.append("∧");
+		}
+		if (direction == Direction.DOWN) {
+			builder.append("∨");
+		}
 
-        builder.append(String.format("%02d/%02d", travelingTargets.size(), targetThreshold));
+		builder.append(":");
 
-        builder.append(":");
+		builder.append(String.format("%02d/%02d", travelingTargets.size(), targetThreshold));
 
-        if (Iterables.tryFind(travelingTargets, equalsFloor).isPresent()) {
-            builder.append("�?");
-        } else {
-            builder.append(" ");
-        }
-        Queue<Direction> directions = waitingTargets.get(floor);
-        if (directions !=null && !directions.isEmpty() && Iterables.tryFind(directions, Predicates.equalTo(direction)).isPresent()) {
-            builder.append("↗");
-        } else if (directions !=null && !directions.isEmpty()) {
-            builder.append("→");
-        } else {
-            builder.append(" ");
-        }
+		builder.append(":");
 
-        builder.append(":");
+		if (Iterables.tryFind(travelingTargets, equalsFloor).isPresent()) {
+			builder.append("<");
+		} else {
+			builder.append(" ");
+		}
+		Queue<Direction> directions = waitingTargets.get(floor);
+		if (directions != null && !directions.isEmpty() && Iterables.tryFind(directions, Predicates.equalTo(direction)).isPresent()) {
+			builder.append("≥");
+		} else if (directions != null && !directions.isEmpty()) {
+			builder.append(">");
+		} else {
+			builder.append(" ");
+		}
 
-        if (hasTargetsAhead()) {
-            builder.append("↑");
-        } else if (hasTargetsBehind()) {
-            builder.append("↺");
-        } else {
-            builder.append(" ");
-        }
+		builder.append(":");
 
-        builder.append("]");
-        return builder.toString();
-    }
+		if (hasTargetsAhead()) {
+			builder.append("→");
+		} else if (hasTargetsBehind()) {
+			builder.append("↺");
+		} else {
+			builder.append(" ");
+		}
 
-    private void doMove(Direction direction) {
-        switch (direction) {
-            case UP:
-                floor++;
-                nextCommand = Command.UP;
-                this.direction = Direction.UP;
-                break;
-            case DOWN:
-                floor--;
-                nextCommand = Command.DOWN;
-                this.direction = Direction.DOWN;
-            default:
-                break;
-        }
-    }
+		builder.append("]");
+		return builder.toString();
+	}
 
-    private Direction inverse(Direction direction) {
-        switch (direction) {
-            case UP:
-                return Direction.DOWN;
-            case DOWN:
-                return Direction.UP;
-            default:
-                break;
-        }
-        return null;
-    }
+	private void doMove(Direction direction) {
+		switch (direction) {
+		case UP:
+			floor++;
+			nextCommand = Command.UP;
+			this.direction = Direction.UP;
+			break;
+		case DOWN:
+			floor--;
+			nextCommand = Command.DOWN;
+			this.direction = Direction.DOWN;
+		default:
+			break;
+		}
+	}
+
+	private Direction inverse(Direction direction) {
+		switch (direction) {
+		case UP:
+			return Direction.DOWN;
+		case DOWN:
+			return Direction.UP;
+		default:
+			break;
+		}
+		return null;
+	}
 }
