@@ -107,19 +107,27 @@ public class ElevatorState implements Cloneable {
 			return true;
 		}
 
-		if (currentTravelersNb < cabinSize) {
+		if (mayAddTargets()) {
 			Queue<Direction> directions = waitingTargets.get(floor);
 			boolean waitingTargetPresent = directions != null && !directions.isEmpty();
 			if (hasTargetsAhead()) {
 				waitingTargetPresent = waitingTargetPresent && Iterables.tryFind(directions, Predicates.equalTo(direction)).isPresent();
 			}
-			return waitingTargetPresent && mayAddTargets();
+			return waitingTargetPresent;
 		}
 		return false;
 	}
 
-	public boolean mayAddTargets() {
+	public boolean thresholdNotReached() {
 		return targetThreshold == null || targetThreshold <= 0 || travelingTargets.size() < targetThreshold;
+	}
+
+	public boolean cabinSizeNotReached() {
+		return cabinSize == null || cabinSize <= 0 || currentTravelersNb < cabinSize;
+	}
+
+	public boolean mayAddTargets() {
+		return thresholdNotReached() && cabinSizeNotReached();
 	}
 
 	public void clearTraveling() {
