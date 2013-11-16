@@ -6,6 +6,7 @@ import static org.n10.codestory.s03e01.core.ElevatorAssert.*;
 import org.junit.Test;
 import org.n10.codestory.s03e01.api.Direction;
 import org.n10.codestory.s03e01.api.ElevatorEngine;
+import org.n10.codestory.s03e01.core.StateSmartElevator;
 
 public class SmartElevatorTest {
 
@@ -191,5 +192,51 @@ public class SmartElevatorTest {
 		elevator.userHasEntered(null);
 		elevator.go(6);
 		assertCommands(elevator, CLOSE, UP, UP, OPEN, CLOSE, NOTHING);
+	}
+
+	@Test
+	public void shouldSkipFloorWhenCabinIsFull() {
+		ElevatorEngine elevator = new StateSmartElevator();
+		elevator.reset(0, 6, 2, "");
+		elevator.call(0, Direction.UP);
+		elevator.call(0, Direction.UP);
+		elevator.call(2, Direction.UP);
+		assertCommands(elevator, OPEN);
+		elevator.userHasEntered(null);
+		elevator.userHasEntered(null);
+		elevator.go(3);
+		elevator.go(3);
+		assertCommands(elevator, CLOSE, UP, UP, UP, OPEN);
+		elevator.userHasExited(null);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, DOWN, OPEN);
+		elevator.userHasEntered(null);
+		elevator.go(4);
+		assertCommands(elevator, CLOSE, UP, UP, OPEN);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, NOTHING);
+	}
+
+	@Test
+	public void shouldNotSkipFloorWhenCabinIsNotFull() {
+		ElevatorEngine elevator = new StateSmartElevator();
+		elevator.reset(0, 6, 3, "");
+		elevator.call(0, Direction.UP);
+		elevator.call(0, Direction.UP);
+		elevator.call(2, Direction.UP);
+		assertCommands(elevator, OPEN);
+		elevator.userHasEntered(null);
+		elevator.userHasEntered(null);
+		elevator.go(3);
+		elevator.go(3);
+		assertCommands(elevator, CLOSE, UP, UP, OPEN);
+		elevator.userHasEntered(null);
+		elevator.go(4);
+		assertCommands(elevator, CLOSE, UP, OPEN);
+		elevator.userHasExited(null);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, UP, OPEN);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, NOTHING);
 	}
 }
