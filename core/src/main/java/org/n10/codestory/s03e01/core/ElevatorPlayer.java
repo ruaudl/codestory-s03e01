@@ -76,7 +76,7 @@ public class ElevatorPlayer {
 			}
 			Integer cabinSize = null;
 			if (request.getParameter("cabinSize") != null) {
-				higherFloor = Integer.valueOf(request.getParameter("cabinSize"));
+				cabinSize = Integer.valueOf(request.getParameter("cabinSize"));
 			}
 			String cause = request.getParameter("cause");
 			synchronized (elevator) {
