@@ -20,4 +20,6 @@ public interface ElevatorEngine {
 
 	public ElevatorEngine limit(Integer i);
 
+	public String printState();
+
 }

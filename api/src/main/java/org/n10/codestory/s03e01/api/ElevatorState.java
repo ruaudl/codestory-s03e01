@@ -3,6 +3,8 @@ package org.n10.codestory.s03e01.api;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
 
 import com.google.common.base.Predicate;
@@ -11,8 +13,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import java.util.Map.Entry;
-import java.util.Queue;
 
 public class ElevatorState implements Cloneable {
 
@@ -183,7 +183,7 @@ public class ElevatorState implements Cloneable {
 		builder.append(":");
 
 		if (Iterables.tryFind(travelingTargets, equalsFloor).isPresent()) {
-			builder.append("â†?");
+			builder.append("<");
 		} else {
 			builder.append(" ");
 		}

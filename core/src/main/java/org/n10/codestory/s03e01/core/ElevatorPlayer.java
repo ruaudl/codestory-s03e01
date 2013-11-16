@@ -15,18 +15,24 @@ import org.n10.codestory.s03e01.api.User;
 
 public class ElevatorPlayer {
 
-	public static final String[] PARAMS = new String[]{"atFloor", "to", "floorToGo", "threshold", "lowerFloor", "higherFloor", "cause"};
+	public static final String[] PARAMS = new String[] { "atFloor", "to", "floorToGo", "threshold", "lowerFloor", "higherFloor", "cause", "cabinSize" };
 	private ElevatorEngine elevator = new StateSmartElevator();
 	private TreeMap<String, String> resets = new TreeMap<String, String>();
 
 	public void play(ElevatorRequest request, PrintStream stream) throws IOException {
+		StringBuilder logBuilder = new StringBuilder();
+		logBuilder.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+		logBuilder.append(" ").append(elevator.printState());
+
+		String logTarget = "";
 		switch (request.getTarget()) {
 			case "/nextCommand":
+			String command = "";
 				synchronized (elevator) {
-					String command = elevator.nextCommand().toString();
-					System.out.println(String.format("%s %s", request.getTarget(), command));
+				command = elevator.nextCommand().toString();
 					stream.println(command);
 				}
+			logTarget = String.format("[%s = %s]", request.getTarget(), command);
 				break;
 			case "/call":
 				Integer atFloor = Integer.valueOf(request.getParameter("atFloor"));
@@ -34,32 +40,33 @@ public class ElevatorPlayer {
 				synchronized (elevator) {
 					elevator.call(atFloor, to);
 				}
-				System.out.println(String.format("%s atFloor %d to %s", request.getTarget(), atFloor, to));
+			logTarget = String.format("[%s atFloor %d to go %s]", request.getTarget(), atFloor, to);
 				break;
 			case "/go":
 				Integer floorToGo = Integer.valueOf(request.getParameter("floorToGo"));
 				synchronized (elevator) {
 					elevator.go(floorToGo);
 				}
+			logTarget = String.format("[%s to %s]", request.getTarget(), floorToGo);
 				break;
 			case "/userHasEntered":
-				System.out.println(request.getTarget());
 				synchronized (elevator) {
 					elevator.userHasEntered(null);
 				}
+			logTarget = String.format("[%s]", request.getTarget());
 				break;
 			case "/userHasExited":
-				System.out.println(request.getTarget());
 				synchronized (elevator) {
 					elevator.userHasExited(null);
 				}
+			logTarget = String.format("[%s]", request.getTarget());
 				break;
 			case "/limit":
 				Integer threshold = Integer.valueOf(request.getParameter("threshold"));
 				synchronized (elevator) {
 					elevator.limit(threshold);
 				}
-				System.out.println(String.format("%s limit to %d", request.getTarget(), threshold));
+			logTarget = String.format("[%s limit to %d]", request.getTarget(), threshold);
 				break;
 			case "/reset":
 				Integer lowerFloor = null;
@@ -84,7 +91,7 @@ public class ElevatorPlayer {
 					resets.remove(resets.firstKey());
 				}
 
-				System.out.println(String.format("%s cause %s", request.getTarget(), cause));
+			logTarget = String.format("[%s cause %s]", request.getTarget(), cause);
 				break;
 			case "/resets":
 				stream.println("<head><meta http-equiv=\"refresh\" content=\"5\"></head><body>");
@@ -94,8 +101,13 @@ public class ElevatorPlayer {
 				stream.println("</body>");
 				break;
 			default:
-				System.out.println(request.getTarget());
 				stream.println("WHAT?");
+			logTarget = String.format("[%s]", request.getTarget());
 		}
+		logBuilder.append(String.format(" %-50s ", logTarget));
+
+		logBuilder.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+		logBuilder.append(" ").append(elevator.printState()).append(" ");
+		System.out.println(logBuilder.toString());
 	}
 }

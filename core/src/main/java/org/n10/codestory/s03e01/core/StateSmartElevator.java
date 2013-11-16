@@ -20,8 +20,6 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public Command nextCommand() throws ElevatorIsBrokenException {
-		System.out.println(state.printState());
-
 		Command currentCommand = state.nextCommand;
 
 		if (currentCommand == Command.CLOSE) {
@@ -90,5 +88,10 @@ public class StateSmartElevator implements ElevatorEngine {
 	public ElevatorEngine limit(Integer limit) {
 		state.targetThreshold = limit;
 		return this;
+	}
+
+	@Override
+	public String printState() {
+		return state.printState();
 	}
 }
