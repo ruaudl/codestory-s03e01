@@ -90,7 +90,6 @@ public class ElevatorState implements Cloneable {
 				return hasAhead && entry.getValue() != null && !entry.getValue().isEmpty();
 			}
 		}).isPresent();
-		System.err.println("hasWaiting = " + hasWaiting);
 		return hasWaiting || Iterables.tryFind(Ordering.natural().sortedCopy(travelingTargets), isAhead.get(direction)).isPresent();
 	}
 
@@ -135,9 +134,7 @@ public class ElevatorState implements Cloneable {
 	}
 
 	public void popWaiting() {
-		System.out.println("popWaiting : " + waitingTargets.get(floor).size());
 		waitingTargets.get(floor).remove();
-		System.out.println("apres popWaiting : " + waitingTargets.get(floor).size());
 	}
 
 	public void doOpen() {
