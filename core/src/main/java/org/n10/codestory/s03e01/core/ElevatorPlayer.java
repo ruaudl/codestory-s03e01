@@ -4,14 +4,11 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.n10.codestory.s03e01.api.Direction;
 import org.n10.codestory.s03e01.api.ElevatorEngine;
-import org.n10.codestory.s03e01.api.User;
 
 public class ElevatorPlayer {
 
