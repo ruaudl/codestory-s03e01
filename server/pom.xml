@@ -50,4 +50,59 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<activation>
+				<property>
+					<name>ssh.install.host</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<id>server-copy</id>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<phase>install</phase>
+								<configuration>
+									<tasks>
+										<scp file="${basedir}/src/main/script/codestory-s03e01-install.sh"
+											todir="${ssh.install.username}:${ssh.install.password}@${ssh.install.host}:${ssh.install.folder}"
+											port="${ssh.install.port}" trust="true" />
+										<scp file="${basedir}/src/main/script/codestory-s03e01.sh"
+											todir="${ssh.install.username}:${ssh.install.password}@${ssh.install.host}:${ssh.install.folder}"
+											port="${ssh.install.port}" trust="true" />
+										<scp
+											file="${project.build.directory}/codestory-s03e01-server-1.0-SNAPSHOT-jar-with-dependencies.jar"
+											todir="${ssh.install.username}:${ssh.install.password}@${ssh.install.host}:${ssh.install.folder}"
+											port="${ssh.install.port}" trust="true" />
+										<sshexec host="${ssh.install.host}" port="${ssh.install.port}"
+											trust="true" username="${ssh.install.username}" password="${ssh.install.password}"
+											command="chmod 755 ${ssh.install.folder}/*.sh" />
+										<sshexec host="${ssh.install.host}" port="${ssh.install.port}"
+											trust="true" username="${ssh.install.username}" password="${ssh.install.password}"
+											command="${ssh.install.folder}/codestory-s03e01-install.sh" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>org.apache.ant</groupId>
+								<artifactId>ant-jsch</artifactId>
+								<version>1.7.1</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
