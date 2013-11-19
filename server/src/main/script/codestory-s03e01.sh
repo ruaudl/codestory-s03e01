@@ -9,7 +9,7 @@
 # Default-Stop:      0 1 6
 ### END INIT INFO
 
-DAEMON_PATH="/home/org.n10"
+DAEMON_PATH="/home/org-n10"
 
 DAEMON=java
 DAEMONOPTS="-jar codestory-s03e01.jar"
