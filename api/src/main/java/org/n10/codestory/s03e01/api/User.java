@@ -110,7 +110,7 @@ public class User {
 	}
 
 	private enum State {
-		WAITING, TRAVELLING, DONE, ;
-	}
 
+		WAITING, TRAVELLING, DONE,;
+	}
 }

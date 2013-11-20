@@ -3,7 +3,6 @@ package org.n10.codestory.s03e01.api;
 public class Target implements Comparable<Target> {
 
 	private int floor;
-
 	private Direction direction;
 
 	public Target(int floor, Direction direction) {
@@ -63,5 +62,4 @@ public class Target implements Comparable<Target> {
 	public String toString() {
 		return "" + floor + direction;
 	}
-
 }

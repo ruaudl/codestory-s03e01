@@ -21,7 +21,6 @@ import com.google.common.util.concurrent.Service;
 public class ElevatorServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-
 	private ElevatorPlayer player = new ElevatorPlayer();
 
 	@Override
