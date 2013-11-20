@@ -28,19 +28,22 @@ public class ElevatorState implements Cloneable {
 	public Integer cabinSize;
 
 	private Predicate<Target> equalsFloor = new Predicate<Target>() {
+		@Override
 		public boolean apply(Target value) {
 			return value.getFloor() == floor;
 		}
 	};
 
-	private Map<Direction, Predicate<Target>> isAhead = new HashMap<Direction, Predicate<Target>>();
+	private Map<Direction, Predicate<Target>> isAhead = new HashMap<>();
 	{
 		isAhead.put(Direction.UP, new Predicate<Target>() {
+			@Override
 			public boolean apply(Target value) {
 				return value.getFloor() > floor;
 			}
 		});
 		isAhead.put(Direction.DOWN, new Predicate<Target>() {
+			@Override
 			public boolean apply(Target value) {
 				return value.getFloor() < floor;
 			}
