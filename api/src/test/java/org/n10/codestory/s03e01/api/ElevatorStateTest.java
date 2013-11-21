@@ -16,24 +16,50 @@ public class ElevatorStateTest {
 	}
 
 	@Test
-	public void testHasTargetAhead() {
+	public void testHasWaitingTargetAhead() {
 		Queue<Direction> queue = new LinkedList<>();
 		queue.add(Direction.UP);
 		elevatorState.waitingTargets.put(4, queue);
 		assertThat(elevatorState.hasTargetsAhead()).isTrue();
 	}
+	
+	@Test
+	public void testHasTravelingTargetAhead() {
+		Queue<User> queue = new LinkedList<>();
+		queue.add(new User());
+		elevatorState.travelingTargets.put(4, queue);
+		assertThat(elevatorState.hasTargetsAhead()).isTrue();
+	}
 
 	@Test
-	public void testHasntTargetAhead() {
+	public void testHasntWaitingTargetAhead() {
 		Queue<Direction> queue = new LinkedList<>();
 		queue.add(Direction.UP);
 		elevatorState.waitingTargets.put(4, queue);
 		elevatorState.floor = 5;
 		assertThat(elevatorState.hasTargetsAhead()).isFalse();
 	}
+	
+	@Test
+	public void testHasntTravelingTargetAhead() {
+		Queue<User> queue = new LinkedList<>();
+		queue.add(new User());
+		elevatorState.travelingTargets.put(4, queue);
+		elevatorState.floor = 5;
+		assertThat(elevatorState.hasTargetsAhead()).isFalse();
+	}
 
 	@Test
-	public void testHasTargetBehind() {
+	public void testHasTravelingTargetBehind() {
+		Queue<User> queue = new LinkedList<>();
+		queue.add(new User());
+		elevatorState.travelingTargets.put(4, queue);
+		elevatorState.floor = 5;
+		assertThat(elevatorState.hasTargetsBehind()).isTrue();
+	}
+	
+	@Test
+	public void testHasWaitingTargetBehind() {
 		Queue<Direction> queue = new LinkedList<>();
 		queue.add(Direction.UP);
 		elevatorState.waitingTargets.put(4, queue);
@@ -42,19 +68,27 @@ public class ElevatorStateTest {
 	}
 
 	@Test
-	public void testHasTargetBehindSameDirection() {
+	public void testHasWaitingTargetBehindSameDirection() {
 		Queue<Direction> queue = new LinkedList<>();
 		queue.add(Direction.DOWN);
 		elevatorState.waitingTargets.put(4, queue);
 		elevatorState.floor = 5;
 		assertThat(elevatorState.hasTargetsBehind()).isTrue();
 	}
-
+	
 	@Test
-	public void testHasntTargetBehind() {
+	public void testHasntWaitingTargetBehind() {
 		Queue<Direction> queue = new LinkedList<>();
 		queue.add(Direction.UP);
 		elevatorState.waitingTargets.put(4, queue);
+		assertThat(elevatorState.hasTargetsBehind()).isFalse();
+	}
+	
+	@Test
+	public void testHasntTravelingTargetBehind() {
+		Queue<User> queue = new LinkedList<>();
+		queue.add(new User());
+		elevatorState.travelingTargets.put(4, queue);
 		assertThat(elevatorState.hasTargetsBehind()).isFalse();
 	}
 

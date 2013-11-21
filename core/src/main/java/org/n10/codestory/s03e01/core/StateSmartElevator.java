@@ -22,9 +22,9 @@ public class StateSmartElevator implements ElevatorEngine {
 	public Command nextCommand() throws ElevatorIsBrokenException {
 		Command currentCommand = state.nextCommand;
 
-		if (currentCommand == Command.CLOSE) {
-			state.clearTraveling();
-		}
+//		if (currentCommand == Command.CLOSE) {
+//			state.clearTraveling();
+//		}
 
 		if (state.willOpen()) {
 			state.doClose();
@@ -57,7 +57,12 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public ElevatorEngine go(Integer floorToGo) throws ElevatorIsBrokenException {
-		state.travelingTargets.add(new Target(floorToGo, null));
+		Queue<User> queue = state.travelingTargets.get(floorToGo);
+		if (queue == null) {
+			queue = new LinkedList<>();
+			state.travelingTargets.put(floorToGo, queue);
+		}
+		queue.add(new User());
 		return this;
 	}
 
@@ -70,6 +75,7 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public ElevatorEngine userHasExited(User user) throws ElevatorIsBrokenException {
+		state.popTraveling();
 		state.currentTravelersNb--;
 		return this;
 	}

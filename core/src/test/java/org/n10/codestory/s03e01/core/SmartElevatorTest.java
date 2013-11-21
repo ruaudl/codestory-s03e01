@@ -1,5 +1,6 @@
 package org.n10.codestory.s03e01.core;
 
+import org.fest.assertions.Assertions;
 import static org.n10.codestory.s03e01.api.Command.*;
 import static org.n10.codestory.s03e01.core.ElevatorAssert.*;
 
@@ -32,7 +33,9 @@ public class SmartElevatorTest {
 		assertCommands(elevator, UP, UP, UP, UP, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(2);
-		assertCommands(elevator, CLOSE, DOWN, DOWN, OPEN, CLOSE, NOTHING);
+		assertCommands(elevator, CLOSE, DOWN, DOWN, OPEN);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, NOTHING);
 	}
 
 	@Test
@@ -42,7 +45,9 @@ public class SmartElevatorTest {
 		assertCommands(elevator, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(2);
-		assertCommands(elevator, CLOSE, UP, UP, OPEN, CLOSE, NOTHING);
+		assertCommands(elevator, CLOSE, UP, UP, OPEN);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, NOTHING);
 	}
 
 	@Test
@@ -54,13 +59,17 @@ public class SmartElevatorTest {
 		assertCommands(elevator, UP, UP, UP, UP, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(5);
-		assertCommands(elevator, CLOSE, UP, OPEN, CLOSE, DOWN, DOWN, OPEN);
+		assertCommands(elevator, CLOSE, UP, OPEN);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, DOWN, DOWN, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(0);
 		assertCommands(elevator, CLOSE, DOWN, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(0);
 		assertCommands(elevator, CLOSE, DOWN, DOWN, OPEN);
+		elevator.userHasExited(null);
+		elevator.userHasExited(null);
 		assertCommands(elevator, CLOSE, NOTHING);
 	}
 
@@ -73,13 +82,17 @@ public class SmartElevatorTest {
 		assertCommands(elevator, UP, UP, UP, UP, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(5);
-		assertCommands(elevator, CLOSE, UP, OPEN, CLOSE, DOWN, DOWN, OPEN);
+		assertCommands(elevator, CLOSE, UP, OPEN);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, DOWN, DOWN, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(0);
 		assertCommands(elevator, CLOSE, DOWN, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(0);
 		assertCommands(elevator, CLOSE, DOWN, DOWN, OPEN);
+		elevator.userHasExited(null);
+		elevator.userHasExited(null);
 		assertCommands(elevator, CLOSE, NOTHING);
 	}
 
@@ -93,13 +106,18 @@ public class SmartElevatorTest {
 		assertCommands(elevator, CLOSE, UP, UP, UP);
 		elevator.call(0, Direction.UP);
 		elevator.call(2, Direction.UP);
-		assertCommands(elevator, UP, OPEN, CLOSE, DOWN, DOWN, DOWN, DOWN, OPEN);
+		assertCommands(elevator, UP, OPEN);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, DOWN, DOWN, DOWN, DOWN, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(4);
 		assertCommands(elevator, CLOSE, UP, UP, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(4);
-		assertCommands(elevator, CLOSE, UP, UP, OPEN, CLOSE, NOTHING);
+		assertCommands(elevator, CLOSE, UP, UP, OPEN);
+		elevator.userHasExited(null);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, NOTHING);
 	}
 
 	@Test
@@ -113,7 +131,10 @@ public class SmartElevatorTest {
 		assertCommands(elevator, CLOSE, UP, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(1);
-		assertCommands(elevator, CLOSE, UP, UP, OPEN, CLOSE, NOTHING);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, UP, UP, OPEN);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, NOTHING);
 	}
 
 	@Test
@@ -126,7 +147,10 @@ public class SmartElevatorTest {
 		elevator.call(0, Direction.UP);
 		elevator.userHasEntered(null);
 		elevator.go(3);
-		assertCommands(elevator, CLOSE, UP, UP, UP, OPEN, CLOSE, NOTHING);
+		assertCommands(elevator, CLOSE, UP, UP, UP, OPEN);
+		elevator.userHasExited(null);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, NOTHING);
 	}
 
 	@Test
@@ -153,12 +177,18 @@ public class SmartElevatorTest {
 		elevator.userHasEntered(null);
 		elevator.go(9);
 		assertCommands(elevator, CLOSE, UP, UP, UP, UP, OPEN);
+		elevator.userHasExited(null);
 		assertCommands(elevator, CLOSE, UP, OPEN);
+		elevator.userHasExited(null);
+		elevator.userHasExited(null);
 		assertCommands(elevator, CLOSE, UP, OPEN);
+		elevator.userHasExited(null);
 		assertCommands(elevator, CLOSE, DOWN, DOWN, DOWN, DOWN, DOWN, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(6);
-		assertCommands(elevator, CLOSE, UP, UP, OPEN, CLOSE, NOTHING);
+		assertCommands(elevator, CLOSE, UP, UP, OPEN);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, NOTHING);
 	}
 
 	@Test
@@ -182,16 +212,22 @@ public class SmartElevatorTest {
 		elevator.userHasEntered(null);
 		elevator.go(9);
 		assertCommands(elevator, CLOSE, UP, UP, UP, UP, OPEN);
+		elevator.userHasExited(null);
 		assertCommands(elevator, CLOSE, UP, OPEN);
+		elevator.userHasExited(null);
 		assertCommands(elevator, CLOSE, UP, OPEN);
+		elevator.userHasExited(null);
 		assertCommands(elevator, CLOSE, DOWN, DOWN, DOWN, DOWN, DOWN, DOWN, DOWN, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(1);
 		assertCommands(elevator, CLOSE, DOWN, OPEN);
+		elevator.userHasExited(null);
 		assertCommands(elevator, CLOSE, UP, UP, UP, OPEN);
 		elevator.userHasEntered(null);
 		elevator.go(6);
-		assertCommands(elevator, CLOSE, UP, UP, OPEN, CLOSE, NOTHING);
+		assertCommands(elevator, CLOSE, UP, UP, OPEN);
+		elevator.userHasExited(null);
+		assertCommands(elevator, CLOSE, NOTHING);
 	}
 
 	@Test

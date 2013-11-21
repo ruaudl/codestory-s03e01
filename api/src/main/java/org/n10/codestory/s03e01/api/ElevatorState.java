@@ -1,18 +1,14 @@
 package org.n10.codestory.s03e01.api;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
-import java.util.Set;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
 
 public class ElevatorState implements Cloneable {
 
@@ -21,18 +17,11 @@ public class ElevatorState implements Cloneable {
 	public Command nextCommand;
 	public Direction direction;
 	public Map<Integer, Queue<Direction>> waitingTargets = new HashMap<>();
-	public Set<Target> travelingTargets;
+	public Map<Integer, Queue<User>> travelingTargets = new HashMap<>();
 	public Integer lowerFloor;
 	public Integer higherFloor;
 	public Integer targetThreshold;
 	public Integer cabinSize;
-
-	private Predicate<Target> equalsFloor = new Predicate<Target>() {
-		@Override
-		public boolean apply(Target value) {
-			return value.getFloor() == floor;
-		}
-	};
 
 	private Map<Direction, Predicate<Target>> isAhead = new HashMap<>();
 	{
@@ -55,7 +44,7 @@ public class ElevatorState implements Cloneable {
 		nextCommand = Command.NOTHING;
 		direction = Direction.UP;
 		waitingTargets = new HashMap<>();
-		travelingTargets = new HashSet<>();
+		travelingTargets = new HashMap<>();
 		this.lowerFloor = ElevatorEngine.LOWER_FLOOR;
 		this.higherFloor = ElevatorEngine.HIGHER_FLOOR;
 		this.cabinSize = ElevatorEngine.CABIN_SIZE;
@@ -90,12 +79,28 @@ public class ElevatorState implements Cloneable {
 				} else if (direction.equals(Direction.DOWN)) {
 					hasAhead = hasAhead && entry.getKey() < floor;
 				}
-				return hasAhead && entry.getValue() != null && !entry.getValue().isEmpty();
+				return hasAhead && isNotEmpty(entry.getValue());
 			}
 		}).isPresent();
-		return hasWaiting || Iterables.tryFind(Ordering.natural().sortedCopy(travelingTargets), isAhead.get(direction)).isPresent();
+		boolean hasTravelling = Iterables.tryFind(travelingTargets.entrySet(), new Predicate<Entry<Integer, Queue<User>>>() {
+			@Override
+			public boolean apply(Entry<Integer, Queue<User>> entry) {
+				boolean hasAhead = true;
+				if (direction.equals(Direction.UP)) {
+					hasAhead = hasAhead && entry.getKey() > floor;
+				} else if (direction.equals(Direction.DOWN)) {
+					hasAhead = hasAhead && entry.getKey() < floor;
+				}
+				return hasAhead && isNotEmpty(entry.getValue());
+			}
+		}).isPresent();
+		return hasWaiting || hasTravelling;
 	}
 
+	private boolean isNotEmpty(Queue<?> queue) {
+		return queue != null && queue.size() > 0;
+	}
+	
 	public boolean hasTargetsAhead() {
 		return hasTargets(direction);
 	}
@@ -105,7 +110,7 @@ public class ElevatorState implements Cloneable {
 	}
 
 	public boolean shouldOpen() {
-		if (Iterables.tryFind(travelingTargets, equalsFloor).isPresent()) {
+		if (isNotEmpty(travelingTargets.get(floor))) {
 			return true;
 		}
 
@@ -121,7 +126,7 @@ public class ElevatorState implements Cloneable {
 	}
 
 	public boolean thresholdNotReached() {
-		return targetThreshold == null || targetThreshold <= 0 || travelingTargets.size() < targetThreshold;
+		return targetThreshold == null || targetThreshold <= 0 || getTargetsCount() < targetThreshold;
 	}
 
 	public boolean cabinSizeNotReached() {
@@ -130,10 +135,6 @@ public class ElevatorState implements Cloneable {
 
 	public boolean mayAddTargets() {
 		return thresholdNotReached() && cabinSizeNotReached();
-	}
-
-	public void clearTraveling() {
-		travelingTargets = Sets.newHashSet(Collections2.filter(travelingTargets, Predicates.not(equalsFloor)));
 	}
 
 	public void popWaiting() {
@@ -169,6 +170,18 @@ public class ElevatorState implements Cloneable {
 		doMove(inverse(direction));
 	}
 
+	public int getTargetsCount() {
+		return Maps.filterValues(travelingTargets, new Predicate<Queue<User>>() {
+
+													 @Override
+													 public boolean apply(Queue<User> t) {
+														 return isNotEmpty(t);
+													 }
+													 
+												 }).size();
+		
+	}
+	
 	public String printState() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("[");
@@ -185,12 +198,12 @@ public class ElevatorState implements Cloneable {
 		}
 
 		builder.append(":");
-
-		builder.append(String.format("%02d/%02d", travelingTargets.size(), targetThreshold));
+		
+		builder.append(String.format("%02d/%02d", getTargetsCount(), targetThreshold));
 
 		builder.append(":");
 
-		if (Iterables.tryFind(travelingTargets, equalsFloor).isPresent()) {
+		if (isNotEmpty(travelingTargets.get(floor))) {
 			builder.append("<");
 		} else {
 			builder.append(" ");
@@ -248,6 +261,10 @@ public class ElevatorState implements Cloneable {
 
 	private int getLimit() {
 		return ((higherFloor - lowerFloor) + 1) / 3;
+	}
+
+	public void popTraveling() {
+		travelingTargets.get(floor).remove();
 	}
 
 }
