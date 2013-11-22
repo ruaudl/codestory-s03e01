@@ -11,10 +11,12 @@ public class User {
 	private Integer tickToGo;
 	private User.State state;
 	private Integer tickToWait;
-
-	public User() {
+	private Direction directionToGo;
+	
+	public User(Direction directionToGo) {
 		this.tickToGo = 0;
 		this.tickToWait = 0;
+		this.directionToGo = directionToGo;
 	}
 
 	boolean waiting() {
@@ -66,6 +68,12 @@ public class User {
 		return tickToWait;
 	}
 
+	public Direction getDirectionToGo() {
+		return directionToGo;
+	}
+
+	
+	
 	private enum State {
 
 		WAITING, TRAVELLING, DONE,;

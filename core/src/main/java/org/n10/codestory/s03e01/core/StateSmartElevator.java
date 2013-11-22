@@ -46,12 +46,12 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public ElevatorEngine call(Integer atFloor, Direction to) throws ElevatorIsBrokenException {
-		Queue<Direction> queue = state.waitingTargets.get(atFloor);
+		Queue<User> queue = state.waitingTargets.get(atFloor);
 		if (queue == null) {
 			queue = new LinkedList<>();
 			state.waitingTargets.put(atFloor, queue);
 		}
-		queue.add(to);
+		queue.add(new User(to));
 		return this;
 	}
 
@@ -62,7 +62,12 @@ public class StateSmartElevator implements ElevatorEngine {
 			queue = new LinkedList<>();
 			state.travelingTargets.put(floorToGo, queue);
 		}
-		queue.add(new User());
+		
+		Direction direction = Direction.UP;
+		if (floorToGo < state.floor) {
+			direction = Direction.DOWN;
+		}
+		queue.add(new User(direction));
 		return this;
 	}
 
