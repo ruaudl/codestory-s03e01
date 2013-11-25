@@ -9,6 +9,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import java.util.LinkedList;
 import static org.n10.codestory.s03e01.api.Direction.DOWN;
 import static org.n10.codestory.s03e01.api.Direction.UP;
 
@@ -80,7 +81,7 @@ public class ElevatorState implements Cloneable {
 	private boolean isNotEmpty(Queue<?> queue) {
 		return queue != null && queue.size() > 0;
 	}
-	
+
 	public boolean hasTargetsAhead() {
 		return hasTargets(direction);
 	}
@@ -96,17 +97,18 @@ public class ElevatorState implements Cloneable {
 
 		if (mayAddTargets()) {
 			Queue<User> users = waitingTargets.get(floor);
+
 			boolean waitingTargetPresent = isNotEmpty(users);
 			if (hasTargetsAhead()) {
-				// TODO faire suivant la taille de l'ascenseur et la position du user dans la même direction
-				waitingTargetPresent = waitingTargetPresent && Iterables.tryFind(users, new Predicate<User>() {
-
-					@Override
-					public boolean apply(User t) {
-						return t.getDirectionToGo() == direction;
-					}
-					
-				}).isPresent();
+				if (waitingTargetPresent) {
+					Queue<User> firsts = getFirstWaiting(floor);
+					waitingTargetPresent = waitingTargetPresent && Iterables.tryFind(firsts, new Predicate<User>() {
+						@Override
+						public boolean apply(User t) {
+							return t.getDirectionToGo() == direction;
+						}
+					}).isPresent();
+				}
 			}
 			return waitingTargetPresent;
 		}
@@ -160,16 +162,14 @@ public class ElevatorState implements Cloneable {
 
 	public int getTargetsCount() {
 		return Maps.filterValues(travelingTargets, new Predicate<Queue<User>>() {
+			@Override
+			public boolean apply(Queue<User> t) {
+				return isNotEmpty(t);
+			}
+		}).size();
 
-													 @Override
-													 public boolean apply(Queue<User> t) {
-														 return isNotEmpty(t);
-													 }
-													 
-												 }).size();
-		
 	}
-	
+
 	public String printState() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("[");
@@ -186,7 +186,7 @@ public class ElevatorState implements Cloneable {
 		}
 
 		builder.append(":");
-		
+
 		builder.append(String.format("%02d/%02d", getTargetsCount(), targetThreshold));
 
 		builder.append(":");
@@ -198,13 +198,11 @@ public class ElevatorState implements Cloneable {
 		}
 		Queue<User> users = waitingTargets.get(floor);
 		if (isNotEmpty(users) && Iterables.tryFind(users, new Predicate<User>() {
-
-					@Override
-					public boolean apply(User t) {
-						return direction == t.getDirectionToGo();
-					}
-					
-				}).isPresent()) {
+			@Override
+			public boolean apply(User t) {
+				return direction == t.getDirectionToGo();
+			}
+		}).isPresent()) {
 			builder.append("≥");
 		} else if (isNotEmpty(users)) {
 			builder.append(">");
@@ -228,28 +226,28 @@ public class ElevatorState implements Cloneable {
 
 	private void doMove(Direction direction) {
 		switch (direction) {
-		case UP:
-			floor++;
-			nextCommand = Command.UP;
-			this.direction = Direction.UP;
-			break;
-		case DOWN:
-			floor--;
-			nextCommand = Command.DOWN;
-			this.direction = Direction.DOWN;
-		default:
-			break;
+			case UP:
+				floor++;
+				nextCommand = Command.UP;
+				this.direction = Direction.UP;
+				break;
+			case DOWN:
+				floor--;
+				nextCommand = Command.DOWN;
+				this.direction = Direction.DOWN;
+			default:
+				break;
 		}
 	}
 
 	private Direction inverse(Direction direction) {
 		switch (direction) {
-		case UP:
-			return Direction.DOWN;
-		case DOWN:
-			return Direction.UP;
-		default:
-			break;
+			case UP:
+				return Direction.DOWN;
+			case DOWN:
+				return Direction.UP;
+			default:
+				break;
 		}
 		return null;
 	}
@@ -262,4 +260,21 @@ public class ElevatorState implements Cloneable {
 		travelingTargets.get(floor).remove();
 	}
 
+	private Queue<User> getFirstWaiting(int atFloor) {
+		Queue<User> elements = waitingTargets.get(atFloor);
+		if (isNotEmpty(elements)) {
+			int count = cabinSize - currentTravelersNb;
+			if (isNotEmpty(travelingTargets.get(atFloor))) {
+				count += travelingTargets.get(atFloor).size();
+			}
+			if (elements.size() > count) {
+				Queue<User> firsts = new LinkedList<>();
+				for (int i = 0; i < count; i++) {
+					firsts.add(elements.peek());
+				}
+				return firsts;
+			}
+		}
+		return elements;
+	}
 }

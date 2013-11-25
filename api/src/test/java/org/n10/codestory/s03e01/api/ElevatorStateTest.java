@@ -1,5 +1,6 @@
 package org.n10.codestory.s03e01.api;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 import static org.fest.assertions.Assertions.*;
@@ -91,7 +92,31 @@ public class ElevatorStateTest {
 		elevatorState.waitingTargets.put(4, queue);
 		assertThat(elevatorState.hasTargetsBehind()).isFalse();
 	}
-
+	
+	@Test
+	public void testOnlyFirstShouldNotOpen() {
+		Queue<User> queue = new LinkedList<>();
+		queue.add(new User(Direction.DOWN));
+		queue.add(new User(Direction.UP));
+		elevatorState.cabinSize = 2;
+		elevatorState.currentTravelersNb = 1;
+		elevatorState.waitingTargets.put(0, queue);
+		elevatorState.travelingTargets.put(1, new LinkedList<>(Arrays.asList(new User(Direction.UP))));
+		assertThat(elevatorState.shouldOpen()).isFalse();
+	}
+	
+	@Test
+	public void testOnlyFirstShouldOpen() {
+		Queue<User> queue = new LinkedList<>();
+		queue.add(new User(Direction.UP));
+		queue.add(new User(Direction.DOWN));
+		elevatorState.cabinSize = 2;
+		elevatorState.currentTravelersNb = 1;
+		elevatorState.waitingTargets.put(0, queue);
+		elevatorState.travelingTargets.put(1, new LinkedList<>(Arrays.asList(new User(Direction.UP))));
+		assertThat(elevatorState.shouldOpen()).isTrue();
+	}
+	
 	@Test
 	public void limitIsOk() {
 		ElevatorState elevator = new ElevatorState(0, 19, 42);
