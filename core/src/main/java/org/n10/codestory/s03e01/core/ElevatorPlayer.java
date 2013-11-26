@@ -27,10 +27,10 @@ public class ElevatorPlayer {
 		case "/nextCommands":
 			String command = "";
 			synchronized (elevator) {
-				command = elevator.nextCommand().toString() + "\nNOTHING";
+				command = elevator.nextCommand().toString() + "\nNOTHING\n";
 				stream.println(command);
 			}
-			logTarget = String.format("[%s = %s]", request.getTarget(), command);
+			logTarget = String.format("[%s = %s]", request.getTarget(), command.replace("\n", "-"));
 			break;
 		case "/call":
 			Integer atFloor = request.getParameterAsInteger("atFloor");
