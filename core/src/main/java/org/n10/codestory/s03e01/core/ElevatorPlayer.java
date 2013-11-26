@@ -27,11 +27,8 @@ public class ElevatorPlayer {
 		case "/nextCommands":
 			String command = "";
 			synchronized (elevator) {
-				command = elevator.nextCommand().toString();
+				command = elevator.nextCommand().toString() + "\nNOTHING";
 				stream.println(command);
-				stream.println("\n");
-				stream.println("NOTHING");
-				stream.println("\n");
 			}
 			logTarget = String.format("[%s = %s]", request.getTarget(), command);
 			break;
