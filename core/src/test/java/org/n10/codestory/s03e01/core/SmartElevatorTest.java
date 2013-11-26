@@ -23,6 +23,9 @@ public class SmartElevatorTest {
 		elevator.call(4, Direction.UP);
 		assertCommands(elevator, UP, UP, UP, UP, OPEN);
 		elevator.userHasEntered(null, 0);
+		elevator.go(5, 0);
+		assertCommands(elevator, CLOSE, UP, OPEN);
+		elevator.userHasExited(null, 0);
 		assertCommands(elevator, CLOSE, NOTHING);
 	}
 

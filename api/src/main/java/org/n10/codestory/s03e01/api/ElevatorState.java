@@ -1,5 +1,6 @@
 package org.n10.codestory.s03e01.api;
 
+import com.google.common.base.Function;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -7,8 +8,13 @@ import java.util.Queue;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import static org.n10.codestory.s03e01.api.Direction.DOWN;
 import static org.n10.codestory.s03e01.api.Direction.UP;
@@ -127,8 +133,8 @@ public class ElevatorState implements Cloneable {
 		return thresholdNotReached() && cabinSizeNotReached();
 	}
 
-	public void popWaiting() {
-		waitingTargets.get(floor).remove();
+	public User popWaiting() {
+		return waitingTargets.get(floor).remove();
 	}
 
 	public void doOpen() {
@@ -256,8 +262,8 @@ public class ElevatorState implements Cloneable {
 		return ((higherFloor - lowerFloor) + 1) / 3;
 	}
 
-	public void popTraveling() {
-		travelingTargets.get(floor).remove();
+	public User popTraveling() {
+		return travelingTargets.get(floor).remove();
 	}
 
 	private Queue<User> getFirstWaiting(int atFloor) {
@@ -276,5 +282,19 @@ public class ElevatorState implements Cloneable {
 			}
 		}
 		return elements;
+	}
+	
+	public void tick() {
+		Collection<Queue<User>> queues = Lists.newArrayList();
+		queues.addAll(waitingTargets.values());
+		queues.addAll(travelingTargets.values());
+		for (Queue<User> queue : queues) {
+			if (isNotEmpty(queue)) {
+				Iterator<User> iterator = queue.iterator();
+				while(iterator.hasNext()) {
+					iterator.next().tick();
+				}
+			}
+		}
 	}
 }

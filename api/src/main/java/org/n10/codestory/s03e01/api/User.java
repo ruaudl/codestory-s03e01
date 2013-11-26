@@ -13,10 +13,12 @@ public class User {
 	private Integer tickToWait;
 	private Direction directionToGo;
 	
-	public User(Direction directionToGo) {
+	public User(Direction directionToGo, Integer initialFloor) {
 		this.tickToGo = 0;
 		this.tickToWait = 0;
 		this.directionToGo = directionToGo;
+		this.initialFloor = initialFloor;
+		this.state = State.WAITING;
 	}
 
 	boolean waiting() {
@@ -29,6 +31,18 @@ public class User {
 
 	Boolean done() {
 		return state == State.DONE;
+	}
+	
+	public void travels() {
+		state = State.TRAVELLING;
+	}
+	
+	public void waits() {
+		state = State.WAITING;
+	}
+	
+	public void arrived() {
+		state = State.DONE;
 	}
 
 	private Integer randomFloor() {
@@ -70,6 +84,10 @@ public class User {
 
 	public Direction getDirectionToGo() {
 		return directionToGo;
+	}
+
+	public void setFloorToGo(Integer floorToGo) {
+		this.floorToGo = floorToGo;
 	}
 
 	

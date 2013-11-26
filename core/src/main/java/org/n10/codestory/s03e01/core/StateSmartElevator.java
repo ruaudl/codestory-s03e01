@@ -41,6 +41,7 @@ public class StateSmartElevator implements ElevatorEngine {
 		if (currentCommand == Command.NOTHING && state.willDoSomething()) {
 			currentCommand = nextCommand();
 		}
+		state.tick();
 		return currentCommand;
 	}
 
@@ -51,36 +52,36 @@ public class StateSmartElevator implements ElevatorEngine {
 			queue = new LinkedList<>();
 			state.waitingTargets.put(atFloor, queue);
 		}
-		queue.add(new User(to));
+		queue.add(new User(to, atFloor));
 		return this;
 	}
 
 	@Override
 	public ElevatorEngine go(Integer floorToGo, Integer cabin) throws ElevatorIsBrokenException {
+		User user = state.popWaiting();
+		user.setFloorToGo(floorToGo);
+		user.travels();
 		Queue<User> queue = state.travelingTargets.get(floorToGo);
 		if (queue == null) {
 			queue = new LinkedList<>();
 			state.travelingTargets.put(floorToGo, queue);
 		}
 		
-		Direction direction = Direction.UP;
-		if (floorToGo < state.floor) {
-			direction = Direction.DOWN;
-		}
-		queue.add(new User(direction));
+		queue.add(user);
 		return this;
 	}
 
 	@Override
 	public ElevatorEngine userHasEntered(User user, Integer cabin) throws ElevatorIsBrokenException {
-		state.popWaiting();
+		
 		state.currentTravelersNb++;
 		return this;
 	}
 
 	@Override
 	public ElevatorEngine userHasExited(User user, Integer cabin) throws ElevatorIsBrokenException {
-		state.popTraveling();
+		User traveler = state.popTraveling();
+		traveler.arrived();
 		state.currentTravelersNb--;
 		return this;
 	}
