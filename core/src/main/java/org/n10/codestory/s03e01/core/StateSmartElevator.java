@@ -15,7 +15,7 @@ public class StateSmartElevator implements ElevatorEngine {
 	private ElevatorState state;
 
 	public StateSmartElevator() {
-		reset(ElevatorEngine.LOWER_FLOOR, ElevatorEngine.HIGHER_FLOOR, ElevatorEngine.CABIN_SIZE, "Init");
+		reset(ElevatorEngine.LOWER_FLOOR, ElevatorEngine.HIGHER_FLOOR, ElevatorEngine.CABIN_SIZE, ElevatorEngine.CABIN_COUNT, "Init");
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class StateSmartElevator implements ElevatorEngine {
 	}
 
 	@Override
-	public ElevatorEngine go(Integer floorToGo) throws ElevatorIsBrokenException {
+	public ElevatorEngine go(Integer floorToGo, Integer cabin) throws ElevatorIsBrokenException {
 		Queue<User> queue = state.travelingTargets.get(floorToGo);
 		if (queue == null) {
 			queue = new LinkedList<>();
@@ -72,21 +72,21 @@ public class StateSmartElevator implements ElevatorEngine {
 	}
 
 	@Override
-	public ElevatorEngine userHasEntered(User user) throws ElevatorIsBrokenException {
+	public ElevatorEngine userHasEntered(User user, Integer cabin) throws ElevatorIsBrokenException {
 		state.popWaiting();
 		state.currentTravelersNb++;
 		return this;
 	}
 
 	@Override
-	public ElevatorEngine userHasExited(User user) throws ElevatorIsBrokenException {
+	public ElevatorEngine userHasExited(User user, Integer cabin) throws ElevatorIsBrokenException {
 		state.popTraveling();
 		state.currentTravelersNb--;
 		return this;
 	}
 
 	@Override
-	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, Integer cabinSize, String cause) throws ElevatorIsBrokenException {
+	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, Integer cabinSize, Integer cabinCount, String cause) throws ElevatorIsBrokenException {
 		ElevatorState newState = new ElevatorState(lowerFloor, higherFloor, cabinSize);
 		if (state != null) {
 			newState.targetThreshold = state.targetThreshold;

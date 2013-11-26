@@ -13,7 +13,7 @@ import org.n10.codestory.s03e01.api.ElevatorEngine;
 public class ElevatorPlayer {
 
 	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
-	public static final String[] PARAMS = new String[] { "atFloor", "to", "floorToGo", "threshold", "lowerFloor", "higherFloor", "cause", "cabinSize" };
+	public static final String[] PARAMS = new String[] { "atFloor", "to", "floorToGo", "threshold", "lowerFloor", "higherFloor", "cause", "cabinSize", "cabinCount", "cabin" };
 	private ElevatorEngine elevator = new StateSmartElevator();
 	private TreeMap<String, String> resets = new TreeMap<String, String>();
 
@@ -24,11 +24,14 @@ public class ElevatorPlayer {
 
 		String logTarget = "";
 		switch (request.getTarget()) {
-		case "/nextCommand":
+		case "/nextCommands":
 			String command = "";
 			synchronized (elevator) {
 				command = elevator.nextCommand().toString();
 				stream.println(command);
+				stream.println("\n");
+				stream.println("NOTHING");
+				stream.println("\n");
 			}
 			logTarget = String.format("[%s = %s]", request.getTarget(), command);
 			break;
@@ -42,22 +45,25 @@ public class ElevatorPlayer {
 			break;
 		case "/go":
 			Integer floorToGo = request.getParameterAsInteger("floorToGo");
+			Integer cabin = request.getParameterAsInteger("cabin");
 			synchronized (elevator) {
-				elevator.go(floorToGo);
+				elevator.go(floorToGo, cabin);
 			}
-			logTarget = String.format("[%s to %s]", request.getTarget(), floorToGo);
+			logTarget = String.format("[%s to %s in cabin %s]", request.getTarget(), floorToGo, cabin);
 			break;
 		case "/userHasEntered":
+			Integer cabinId = request.getParameterAsInteger("cabin");
 			synchronized (elevator) {
-				elevator.userHasEntered(null);
+				elevator.userHasEntered(null, cabinId);
 			}
-			logTarget = String.format("[%s]", request.getTarget());
+			logTarget = String.format("[%s in cabin %s]", request.getTarget(), cabinId);
 			break;
 		case "/userHasExited":
+			Integer idCabin = request.getParameterAsInteger("cabin");
 			synchronized (elevator) {
-				elevator.userHasExited(null);
+				elevator.userHasExited(null, idCabin);
 			}
-			logTarget = String.format("[%s]", request.getTarget());
+			logTarget = String.format("[%s in cabin %s]", request.getTarget(), idCabin);
 			break;
 		case "/limit":
 			Integer threshold = request.getParameterAsInteger("threshold");
@@ -70,11 +76,12 @@ public class ElevatorPlayer {
 			Integer lowerFloor = request.getParameterAsInteger("lowerFloor");
 			Integer higherFloor = request.getParameterAsInteger("higherFloor");
 			Integer cabinSize = request.getParameterAsInteger("cabinSize");
+			Integer cabinCount = request.getParameterAsInteger("cabinCount");
 			String cause = request.getParameter("cause");
 			synchronized (elevator) {
-				elevator.reset(lowerFloor, higherFloor, cabinSize, cause);
+				elevator.reset(lowerFloor, higherFloor, cabinSize, cabinCount, cause);
 			}
-			logTarget = String.format("[%s cause %s from %s to %s max %s]", request.getTarget(), cause, lowerFloor, higherFloor, cabinSize);
+			logTarget = String.format("[%s cause %s from %s to %s max %s nb %s]", request.getTarget(), cause, lowerFloor, higherFloor, cabinSize, cabinCount);
 			registerReset(logTarget);
 			break;
 		case "/resets":
