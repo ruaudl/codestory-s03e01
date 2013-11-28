@@ -1,13 +1,11 @@
 package org.n10.codestory.s03e01.core;
 
-import org.fest.assertions.Assertions;
 import static org.n10.codestory.s03e01.api.Command.*;
 import static org.n10.codestory.s03e01.core.ElevatorAssert.*;
 
 import org.junit.Test;
 import org.n10.codestory.s03e01.api.Direction;
 import org.n10.codestory.s03e01.api.ElevatorEngine;
-import org.n10.codestory.s03e01.core.StateSmartElevator;
 
 public class SmartElevatorTest {
 
@@ -276,6 +274,51 @@ public class SmartElevatorTest {
 		elevator.userHasExited(null, 0);
 		assertCommands(elevator, CLOSE, UP, OPEN);
 		elevator.userHasExited(null, 0);
+		assertCommands(elevator, CLOSE, NOTHING);
+	}
+
+	@Test
+	public void shouldCareOfPoints() {
+		ElevatorEngine elevator = new StateSmartElevator();
+		elevator.reset(0, 100, 2, 1, "");
+		elevator.call(10, Direction.UP);
+		elevator.call(50, Direction.UP);
+		assertManyCommands(elevator, 10, UP);
+		assertCommands(elevator, OPEN);
+
+		elevator.userHasEntered(null, 0);
+		elevator.go(60, 0);
+
+		assertCommands(elevator, CLOSE);
+		assertManyCommands(elevator, 35, UP);
+
+		elevator.call(50, Direction.UP);
+
+		assertManyCommands(elevator, 15, UP);
+		assertCommands(elevator, OPEN);
+		elevator.userHasExited(null, 0);
+
+		assertCommands(elevator, CLOSE);
+		assertManyCommands(elevator, 10, DOWN);
+		assertCommands(elevator, OPEN);
+
+		elevator.userHasEntered(null, 0);
+		elevator.go(70, 0);
+		elevator.userHasEntered(null, 0);
+		elevator.go(60, 0);
+
+		assertCommands(elevator, CLOSE);
+		assertManyCommands(elevator, 10, UP);
+		assertCommands(elevator, OPEN);
+
+		elevator.userHasExited(null, 0);
+
+		assertCommands(elevator, CLOSE);
+		assertManyCommands(elevator, 10, UP);
+		assertCommands(elevator, OPEN);
+
+		elevator.userHasExited(null, 0);
+
 		assertCommands(elevator, CLOSE, NOTHING);
 	}
 }

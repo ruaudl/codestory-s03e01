@@ -1,8 +1,5 @@
 package org.n10.codestory.s03e01.api;
 
-import static java.lang.Math.*;
-import static org.n10.codestory.s03e01.api.Direction.*;
-import static org.n10.codestory.s03e01.api.ElevatorEngine.*;
 
 public class User {
 
@@ -12,7 +9,7 @@ public class User {
 	private User.State state;
 	private Integer tickToWait;
 	private Direction directionToGo;
-	
+
 	public User(Direction directionToGo, Integer initialFloor) {
 		this.tickToGo = 0;
 		this.tickToWait = 0;
@@ -33,29 +30,17 @@ public class User {
 	Boolean done() {
 		return state == State.DONE;
 	}
-	
+
 	public void travels() {
 		state = State.TRAVELLING;
 	}
-	
+
 	public void waits() {
 		state = State.WAITING;
 	}
-	
+
 	public void arrived() {
 		state = State.DONE;
-	}
-
-	private Integer randomFloor() {
-		return new Double(random() * HIGHER_FLOOR).intValue();
-	}
-
-	private Direction randomDirection() {
-		return randomBoolean() ? UP : DOWN;
-	}
-
-	private Boolean randomBoolean() {
-		return random() > .5;
 	}
 
 	public Integer getTickToGo() {
@@ -92,21 +77,20 @@ public class User {
 	}
 
 	public Integer getPoints(int waitTick, int goTick) {
-		return 20 + (2 + Math.abs(initialFloor - floorToGo)) - (waitTick/2 + goTick);
+		return 20 + (2 + Math.abs(initialFloor - floorToGo)) - (waitTick / 2 + goTick);
 	}
-	
+
 	public Integer getRemainingPoints() {
 		return getPoints(tickToWait, tickToGo);
 	}
-	
+
 	public Integer getPotentialPoints(Integer actualFloor, boolean isOpen) {
 		return getPoints(getTickToWaitToCome(actualFloor, isOpen) + tickToWait, getTickToGoToCome(actualFloor, isOpen) + tickToGo);
 	}
-	
+
 	public boolean willGivePoints() {
 		return getRemainingPoints() > 0;
 	}
-	
 
 	public Integer getTickToWaitToCome(Integer actualFloor, boolean isOpen) {
 		if (traveling()) {
@@ -114,14 +98,14 @@ public class User {
 		}
 		return getTickToCome(actualFloor, isOpen, initialFloor);
 	}
-	
+
 	public Integer getTickToGoToCome(Integer actualFloor, boolean isOpen) {
 		if (waiting()) {
 			return 2;
 		}
 		return getTickToCome(actualFloor, isOpen, floorToGo);
 	}
-	
+
 	public Integer getTickToCome(Integer actualFloor, boolean isOpen, Integer floorToCompare) {
 		if (actualFloor == floorToCompare) {
 			if (isOpen) {
@@ -136,13 +120,13 @@ public class User {
 		}
 		return nbMoves;
 	}
-	
+
 	public boolean willGivePointsFrom(Integer actualFloor, boolean isOpen) {
-			return getPotentialPoints(actualFloor, isOpen) > 0;
+		return getPotentialPoints(actualFloor, isOpen) > 0;
 	}
-	
+
 	private enum State {
 
-		WAITING, TRAVELLING, DONE,;
+		WAITING, TRAVELLING, DONE, ;
 	}
 }

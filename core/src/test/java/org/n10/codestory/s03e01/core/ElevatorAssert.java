@@ -15,4 +15,10 @@ public final class ElevatorAssert {
 			assertThat(elevator.nextCommand()).isEqualTo(command);
 		}
 	}
+
+	public static void assertManyCommands(ElevatorEngine elevator, int times, Command command) {
+		for (int i = 0; i < times; i++) {
+			assertThat(elevator.nextCommand()).isEqualTo(command);
+		}
+	}
 }

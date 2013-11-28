@@ -1,25 +1,19 @@
 package org.n10.codestory.s03e01.api;
 
-import com.google.common.base.Function;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import static org.n10.codestory.s03e01.api.Direction.DOWN;
-import static org.n10.codestory.s03e01.api.Direction.UP;
 
-public class ElevatorState implements Cloneable {
+public class ElevatorState {
 
 	public int floor;
 	public int currentTravelersNb;
@@ -31,7 +25,20 @@ public class ElevatorState implements Cloneable {
 	public Integer higherFloor;
 	public Integer targetThreshold;
 	public Integer cabinSize;
+	public boolean doorsOpened;
 
+	private Predicate<User> hasSameDirection = new Predicate<User>() {
+		@Override
+		public boolean apply(User user) {
+			return user.getDirectionToGo() == direction;
+		}
+	};
+	private Predicate<User> hasPotentialPoints = new Predicate<User>() {
+		@Override
+		public boolean apply(User user) {
+			return user.willGivePointsFrom(floor, doorsOpened);
+		}
+	};
 	private Map<Direction, Predicate<Entry<Integer, Queue<User>>>> isAhead = new HashMap<>();
 	{
 		isAhead.put(Direction.UP, new Predicate<Entry<Integer, Queue<User>>>() {
@@ -49,6 +56,7 @@ public class ElevatorState implements Cloneable {
 	}
 
 	public ElevatorState() {
+		doorsOpened = false;
 		floor = 0;
 		nextCommand = Command.NOTHING;
 		direction = Direction.UP;
@@ -66,8 +74,6 @@ public class ElevatorState implements Cloneable {
 		this.lowerFloor = lowerFloor;
 		this.higherFloor = higherFloor;
 		this.cabinSize = cabinSize;
-		this.currentTravelersNb = 0;
-		targetThreshold = getLimit();
 	}
 
 	public boolean willOpen() {
@@ -76,6 +82,11 @@ public class ElevatorState implements Cloneable {
 
 	public boolean willDoSomething() {
 		return nextCommand != Command.NOTHING;
+	}
+
+	public boolean willGivePoints() {
+		Iterable<User> values = Iterables.concat(Iterables.concat(travelingTargets.values(), waitingTargets.values()));
+		return Iterables.tryFind(values, hasPotentialPoints).isPresent();
 	}
 
 	private boolean hasTargets(final Direction direction) {
@@ -102,21 +113,17 @@ public class ElevatorState implements Cloneable {
 		}
 
 		if (mayAddTargets()) {
-			Queue<User> users = waitingTargets.get(floor);
-
-			boolean waitingTargetPresent = isNotEmpty(users);
-			if (hasTargetsAhead()) {
-				if (waitingTargetPresent) {
-					Queue<User> firsts = getFirstWaiting(floor);
-					waitingTargetPresent = waitingTargetPresent && Iterables.tryFind(firsts, new Predicate<User>() {
-						@Override
-						public boolean apply(User t) {
-							return t.getDirectionToGo() == direction;
-						}
-					}).isPresent();
-				}
+			Queue<User> waitings = getFirstWaiting(floor);
+			boolean waitingTargetPresent = isNotEmpty(waitings);
+			if (!waitingTargetPresent) {
+				return false;
 			}
-			return waitingTargetPresent;
+
+			boolean waitingTargetsSameDirection = !hasTargetsAhead() || Iterables.tryFind(waitings, hasSameDirection).isPresent();
+			if (willGivePoints()) {
+				return waitingTargetsSameDirection && Iterables.tryFind(waitings, hasPotentialPoints).isPresent();
+			}
+			return waitingTargetsSameDirection;
 		}
 		return false;
 	}
@@ -138,24 +145,17 @@ public class ElevatorState implements Cloneable {
 	}
 
 	public void doOpen() {
+		doorsOpened = true;
 		nextCommand = Command.OPEN;
 	}
 
 	public void doClose() {
+		doorsOpened = false;
 		nextCommand = Command.CLOSE;
 	}
 
 	public void doNothing() {
 		nextCommand = Command.NOTHING;
-	}
-
-	@Override
-	public ElevatorState clone() {
-		try {
-			return (ElevatorState) super.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	public void doContinue() {
@@ -232,28 +232,28 @@ public class ElevatorState implements Cloneable {
 
 	private void doMove(Direction direction) {
 		switch (direction) {
-			case UP:
-				floor++;
-				nextCommand = Command.UP;
-				this.direction = Direction.UP;
-				break;
-			case DOWN:
-				floor--;
-				nextCommand = Command.DOWN;
-				this.direction = Direction.DOWN;
-			default:
-				break;
+		case UP:
+			floor++;
+			nextCommand = Command.UP;
+			this.direction = Direction.UP;
+			break;
+		case DOWN:
+			floor--;
+			nextCommand = Command.DOWN;
+			this.direction = Direction.DOWN;
+		default:
+			break;
 		}
 	}
 
 	private Direction inverse(Direction direction) {
 		switch (direction) {
-			case UP:
-				return Direction.DOWN;
-			case DOWN:
-				return Direction.UP;
-			default:
-				break;
+		case UP:
+			return Direction.DOWN;
+		case DOWN:
+			return Direction.UP;
+		default:
+			break;
 		}
 		return null;
 	}
@@ -283,7 +283,7 @@ public class ElevatorState implements Cloneable {
 		}
 		return elements;
 	}
-	
+
 	public void tick() {
 		Collection<Queue<User>> queues = Lists.newArrayList();
 		queues.addAll(waitingTargets.values());
@@ -291,7 +291,7 @@ public class ElevatorState implements Cloneable {
 		for (Queue<User> queue : queues) {
 			if (isNotEmpty(queue)) {
 				Iterator<User> iterator = queue.iterator();
-				while(iterator.hasNext()) {
+				while (iterator.hasNext()) {
 					iterator.next().tick();
 				}
 			}
