@@ -108,7 +108,9 @@ public class ElevatorState {
 	}
 
 	public boolean shouldOpen() {
+		boolean willGivePoints = willGivePoints();
 		if (isNotEmpty(travelingTargets.get(floor))) {
+			if (Iterables.tryFind(travelingTargets.get(floor), hasPotentialPoints).isPresent() || !willGivePoints)
 			return true;
 		}
 
@@ -120,7 +122,7 @@ public class ElevatorState {
 			}
 
 			boolean waitingTargetsSameDirection = !hasTargetsAhead() || Iterables.tryFind(waitings, hasSameDirection).isPresent();
-			if (willGivePoints()) {
+			if (willGivePoints) {
 				return waitingTargetsSameDirection && Iterables.tryFind(waitings, hasPotentialPoints).isPresent();
 			}
 			return waitingTargetsSameDirection;

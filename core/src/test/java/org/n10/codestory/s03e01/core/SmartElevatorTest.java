@@ -303,18 +303,18 @@ public class SmartElevatorTest {
 		assertCommands(elevator, OPEN);
 
 		elevator.userHasEntered(null, 0);
-		elevator.go(70, 0);
-		elevator.userHasEntered(null, 0);
 		elevator.go(60, 0);
+		elevator.userHasEntered(null, 0);
+		elevator.go(70, 0);
 
 		assertCommands(elevator, CLOSE);
-		assertManyCommands(elevator, 10, UP);
+		assertManyCommands(elevator, 20, UP);
 		assertCommands(elevator, OPEN);
 
 		elevator.userHasExited(null, 0);
 
 		assertCommands(elevator, CLOSE);
-		assertManyCommands(elevator, 10, UP);
+		assertManyCommands(elevator, 10, DOWN);
 		assertCommands(elevator, OPEN);
 
 		elevator.userHasExited(null, 0);
