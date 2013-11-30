@@ -21,7 +21,7 @@ public class ElevatorPlayer {
 	public void play(ElevatorRequest request, PrintStream stream) throws IOException {
 		StringBuilder logBuilder = new StringBuilder();
 		logBuilder.append(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-		logBuilder.append(" ").append(elevator.printState());
+		logBuilder.append(" ").append(elevator.getStatus());
 
 		String logTarget = "";
 		switch (request.getTarget()) {
@@ -96,7 +96,7 @@ public class ElevatorPlayer {
 		logBuilder.append(String.format(" %-50s ", logTarget));
 
 		logBuilder.append(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
-		logBuilder.append(" ").append(elevator.printState()).append(" ");
+		logBuilder.append(" ").append(elevator.getStatus()).append(" ");
 		System.out.println(logBuilder.toString());
 	}
 

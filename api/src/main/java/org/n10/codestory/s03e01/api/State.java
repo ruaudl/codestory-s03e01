@@ -47,6 +47,15 @@ public abstract class State {
 		}
 	}
 
+	@Override
+	public String toString() {
+		int points = 0;
+		for (User user : Iterables.concat(targets.values())) {
+			points += Math.max(0, user.getRemainingPoints());
+		}
+		return String.format("(%d=%s)", points, targets.toString());
+	}
+
 	public static Direction inverse(Direction direction) {
 		switch (direction) {
 		case UP:

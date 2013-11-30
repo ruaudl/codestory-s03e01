@@ -99,8 +99,12 @@ public class ElevatorState extends State {
 		return hasTargets(inverse(direction));
 	}
 
-	public boolean hasTravellersWithPoints() {
-		return isNotEmpty(targets.get(floor)) && (Iterables.tryFind(targets.get(floor), hasPotentialPoints).isPresent() || !willGivePoints());
+	public boolean hasTargetsToGetOut() {
+		return isNotEmpty(targets.get(floor));
+	}
+
+	public boolean hasTargetsToGetOutWithPoints() {
+		return hasTargetsToGetOut() && (Iterables.tryFind(targets.get(floor), hasPotentialPoints).isPresent() || !willGivePoints());
 	}
 
 	public boolean thresholdNotReached() {
@@ -116,7 +120,7 @@ public class ElevatorState extends State {
 	}
 
 	public boolean shouldOpen() {
-		if (hasTravellersWithPoints()) {
+		if (hasTargetsToGetOutWithPoints()) {
 			return true;
 		}
 
@@ -190,58 +194,19 @@ public class ElevatorState extends State {
 
 	}
 
-	public String printState() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("[");
-
-		builder.append(String.format("%02d", floor));
-
-		builder.append(":");
-
-		if (direction == Direction.UP) {
-			builder.append("∧");
-		}
-		if (direction == Direction.DOWN) {
-			builder.append("∨");
-		}
-
-		builder.append(":");
-
-		builder.append(String.format("%02d/%02d", getTargetsCount(), targetThreshold));
-
-		builder.append(":");
-
-		if (isNotEmpty(targets.get(floor))) {
-			builder.append("<");
-		} else {
-			builder.append(" ");
-		}
+	public String getStatus() {
 		Queue<User> users = buildingState.targets.get(floor);
-		if (isNotEmpty(users) && Iterables.tryFind(users, new Predicate<User>() {
-			@Override
-			public boolean apply(User t) {
-				return direction == t.getDirectionToGo();
-			}
-		}).isPresent()) {
-			builder.append("≥");
-		} else if (isNotEmpty(users)) {
-			builder.append(">");
-		} else {
-			builder.append(" ");
-		}
+		String getOut = hasTargetsToGetOut() ? "<" : " ";
+		String getIn = isNotEmpty(users) && Iterables.tryFind(users, hasSameDirection).isPresent() ? "≥" : isNotEmpty(users) ? ">" : " ";
+		String aheadOrBehind = hasTargetsAhead() ? "→" : hasTargetsBehind() ? "↺" : " ";
+		String state = String.format("(%02d:%s:%02d/%02d:%s%s:%s)", floor, direction.toShortString(), getTargetsCount(), targetThreshold, getOut, getIn,
+				aheadOrBehind);
+		return state;
+	}
 
-		builder.append(":");
-
-		if (hasTargetsAhead()) {
-			builder.append("→");
-		} else if (hasTargetsBehind()) {
-			builder.append("↺");
-		} else {
-			builder.append(" ");
-		}
-
-		builder.append("]");
-		return builder.toString();
+	@Override
+	public String toString() {
+		return String.format("%s\n\t%s", super.toString(), getStatus());
 	}
 
 	private Queue<User> getFirstWaiting(int atFloor) {

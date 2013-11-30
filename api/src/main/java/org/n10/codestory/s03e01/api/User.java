@@ -124,8 +124,22 @@ public class User {
 		return getPotentialPoints(actualFloor, isOpen) > 0;
 	}
 
-	private enum State {
+	/**
+	 * (W|5>U|10) Waiting at level 5 to go Up carrying 10 points<br/>
+	 * (T|5>7|-5) Traveling from level 5 to level 7 carrying -5 points<br/>
+	 * (A|5>7|5) Arrived from level 5 to level 7 giving 5 points
+	 */
+	@Override
+	public String toString() {
+		return String.format("(%s|%d>%s|%d)", state.toShortString(), initialFloor, state == State.WAITING ? directionToGo.toShortString() : floorToGo,
+				getRemainingPoints());
+	}
 
-		WAITING, TRAVELLING, DONE, ;
+	private enum State {
+		WAITING, TRAVELLING, DONE;
+
+		public String toShortString() {
+			return toString().substring(0, 1);
+		}
 	}
 }

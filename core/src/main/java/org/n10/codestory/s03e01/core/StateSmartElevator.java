@@ -33,12 +33,15 @@ public class StateSmartElevator implements ElevatorEngine {
 
 		elevator.tickUsers();
 		building.tickUsers();
+		System.out.println(String.format("Command %s returned with states:\n%s", command, this));
 		return command;
 	}
 
 	@Override
 	public ElevatorEngine call(Integer atFloor, Direction to) throws ElevatorIsBrokenException {
-		building.pushUser(new User(to, atFloor));
+		User user = new User(to, atFloor);
+		building.pushUser(user);
+		System.out.println(String.format("User has called: %s", user));
 		return this;
 	}
 
@@ -47,6 +50,7 @@ public class StateSmartElevator implements ElevatorEngine {
 		User user = building.popUser(elevator.floor);
 		user.setFloorToGo(floorToGo);
 		user.travels();
+		System.out.println(String.format("User has entered: %s", user));
 		elevator.pushUser(user);
 		return this;
 	}
@@ -61,8 +65,7 @@ public class StateSmartElevator implements ElevatorEngine {
 	public ElevatorEngine userHasExited(User user, Integer cabin) throws ElevatorIsBrokenException {
 		User traveler = elevator.popUser();
 		traveler.arrived();
-		System.out.println(String.format("User entered at %s, exited at %s, gave %s points", traveler.getInitialFloor(), traveler.getFloorToGo(),
-				traveler.getRemainingPoints()));
+		System.out.println(String.format("User has exited: %s", traveler));
 		elevator.travelersCount--;
 		return this;
 	}
@@ -85,7 +88,12 @@ public class StateSmartElevator implements ElevatorEngine {
 	}
 
 	@Override
-	public String printState() {
-		return elevator.printState();
+	public String getStatus() {
+		return elevator.getStatus();
+	}
+
+	@Override
+	public String toString() {
+		return String.format("E=%s\nB=%s", elevator.toString(), building.toString());
 	}
 }
