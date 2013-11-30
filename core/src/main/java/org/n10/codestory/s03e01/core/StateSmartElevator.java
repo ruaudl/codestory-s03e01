@@ -3,6 +3,7 @@ package org.n10.codestory.s03e01.core;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import org.n10.codestory.s03e01.api.BuildingState;
 import org.n10.codestory.s03e01.api.Command;
 import org.n10.codestory.s03e01.api.Direction;
 import org.n10.codestory.s03e01.api.ElevatorEngine;
@@ -38,10 +39,10 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public ElevatorEngine call(Integer atFloor, Direction to) throws ElevatorIsBrokenException {
-		Queue<User> queue = state.waitingTargets.get(atFloor);
+		Queue<User> queue = state.buildingState.targets.get(atFloor);
 		if (queue == null) {
 			queue = new LinkedList<>();
-			state.waitingTargets.put(atFloor, queue);
+			state.buildingState.targets.put(atFloor, queue);
 		}
 		queue.add(new User(to, atFloor));
 		return this;
@@ -52,10 +53,10 @@ public class StateSmartElevator implements ElevatorEngine {
 		User user = state.popWaiting();
 		user.setFloorToGo(floorToGo);
 		user.travels();
-		Queue<User> queue = state.travelingTargets.get(floorToGo);
+		Queue<User> queue = state.targets.get(floorToGo);
 		if (queue == null) {
 			queue = new LinkedList<>();
-			state.travelingTargets.put(floorToGo, queue);
+			state.targets.put(floorToGo, queue);
 		}
 
 		queue.add(user);
@@ -81,7 +82,7 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, Integer cabinSize, Integer cabinCount, String cause) throws ElevatorIsBrokenException {
-		ElevatorState newState = new ElevatorState(lowerFloor, higherFloor, cabinSize);
+		ElevatorState newState = new ElevatorState(lowerFloor, higherFloor, cabinSize, new BuildingState());
 		if (state != null) {
 			newState.targetThreshold = state.targetThreshold;
 		}

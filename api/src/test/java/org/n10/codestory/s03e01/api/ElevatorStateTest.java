@@ -20,7 +20,7 @@ public class ElevatorStateTest {
 	public void testHasWaitingTargetAhead() {
 		Queue<User> queue = new LinkedList<>();
 		queue.add(new User(Direction.UP, 4));
-		elevatorState.waitingTargets.put(4, queue);
+		elevatorState.buildingState.targets.put(4, queue);
 		assertThat(elevatorState.hasTargetsAhead()).isTrue();
 	}
 
@@ -28,7 +28,7 @@ public class ElevatorStateTest {
 	public void testHasTravelingTargetAhead() {
 		Queue<User> queue = new LinkedList<>();
 		queue.add(new User(Direction.DOWN, 5));
-		elevatorState.travelingTargets.put(4, queue);
+		elevatorState.targets.put(4, queue);
 		assertThat(elevatorState.hasTargetsAhead()).isTrue();
 	}
 
@@ -36,7 +36,7 @@ public class ElevatorStateTest {
 	public void testHasntWaitingTargetAhead() {
 		Queue<User> queue = new LinkedList<>();
 		queue.add(new User(Direction.UP, 4));
-		elevatorState.waitingTargets.put(4, queue);
+		elevatorState.buildingState.targets.put(4, queue);
 		elevatorState.floor = 5;
 		assertThat(elevatorState.hasTargetsAhead()).isFalse();
 	}
@@ -45,7 +45,7 @@ public class ElevatorStateTest {
 	public void testHasntTravelingTargetAhead() {
 		Queue<User> queue = new LinkedList<>();
 		queue.add(new User(Direction.DOWN, 6));
-		elevatorState.travelingTargets.put(4, queue);
+		elevatorState.targets.put(4, queue);
 		elevatorState.floor = 5;
 		assertThat(elevatorState.hasTargetsAhead()).isFalse();
 	}
@@ -54,7 +54,7 @@ public class ElevatorStateTest {
 	public void testHasTravelingTargetBehind() {
 		Queue<User> queue = new LinkedList<>();
 		queue.add(new User(Direction.DOWN, 6));
-		elevatorState.travelingTargets.put(4, queue);
+		elevatorState.targets.put(4, queue);
 		elevatorState.floor = 5;
 		assertThat(elevatorState.hasTargetsBehind()).isTrue();
 	}
@@ -63,7 +63,7 @@ public class ElevatorStateTest {
 	public void testHasWaitingTargetBehind() {
 		Queue<User> queue = new LinkedList<>();
 		queue.add(new User(Direction.UP, 4));
-		elevatorState.waitingTargets.put(4, queue);
+		elevatorState.buildingState.targets.put(4, queue);
 		elevatorState.floor = 5;
 		assertThat(elevatorState.hasTargetsBehind()).isTrue();
 	}
@@ -72,7 +72,7 @@ public class ElevatorStateTest {
 	public void testHasWaitingTargetBehindSameDirection() {
 		Queue<User> queue = new LinkedList<>();
 		queue.add(new User(Direction.DOWN, 4));
-		elevatorState.waitingTargets.put(4, queue);
+		elevatorState.buildingState.targets.put(4, queue);
 		elevatorState.floor = 5;
 		assertThat(elevatorState.hasTargetsBehind()).isTrue();
 	}
@@ -81,7 +81,7 @@ public class ElevatorStateTest {
 	public void testHasntWaitingTargetBehind() {
 		Queue<User> queue = new LinkedList<>();
 		queue.add(new User(Direction.UP, 4));
-		elevatorState.waitingTargets.put(4, queue);
+		elevatorState.buildingState.targets.put(4, queue);
 		assertThat(elevatorState.hasTargetsBehind()).isFalse();
 	}
 
@@ -89,7 +89,7 @@ public class ElevatorStateTest {
 	public void testHasntTargetBehind() {
 		Queue<User> queue = new LinkedList<>();
 		queue.add(new User(Direction.UP, 4));
-		elevatorState.waitingTargets.put(4, queue);
+		elevatorState.buildingState.targets.put(4, queue);
 		assertThat(elevatorState.hasTargetsBehind()).isFalse();
 	}
 
@@ -100,8 +100,8 @@ public class ElevatorStateTest {
 		queue.add(new User(Direction.UP, 0));
 		elevatorState.cabinSize = 2;
 		elevatorState.currentTravelersNb = 1;
-		elevatorState.waitingTargets.put(0, queue);
-		elevatorState.travelingTargets.put(1, new LinkedList<>(Arrays.asList(new User(Direction.UP, 0))));
+		elevatorState.buildingState.targets.put(0, queue);
+		elevatorState.targets.put(1, new LinkedList<>(Arrays.asList(new User(Direction.UP, 0))));
 		assertThat(elevatorState.shouldOpen()).isFalse();
 	}
 
@@ -112,14 +112,14 @@ public class ElevatorStateTest {
 		queue.add(new User(Direction.DOWN, 0));
 		elevatorState.cabinSize = 2;
 		elevatorState.currentTravelersNb = 1;
-		elevatorState.waitingTargets.put(0, queue);
-		elevatorState.travelingTargets.put(1, new LinkedList<>(Arrays.asList(new User(Direction.UP, 0))));
+		elevatorState.buildingState.targets.put(0, queue);
+		elevatorState.targets.put(1, new LinkedList<>(Arrays.asList(new User(Direction.UP, 0))));
 		assertThat(elevatorState.shouldOpen()).isTrue();
 	}
 
 	@Test
 	public void limitIsOk() {
-		ElevatorState elevator = new ElevatorState(0, 19, 42);
+		ElevatorState elevator = new ElevatorState(0, 19, 42, new BuildingState());
 		assertThat(elevator.targetThreshold).isEqualTo(6);
 	}
 }

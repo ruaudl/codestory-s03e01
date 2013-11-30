@@ -3,7 +3,6 @@ package org.n10.codestory.s03e01.api;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
@@ -14,18 +13,17 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class ElevatorState {
+public class ElevatorState extends State {
 
 	public int floor;
 	public int currentTravelersNb;
 	public Direction direction;
-	public Map<Integer, Queue<User>> waitingTargets = new HashMap<>();
-	public Map<Integer, Queue<User>> travelingTargets = new HashMap<>();
 	public Integer lowerFloor;
 	public Integer higherFloor;
 	public Integer targetThreshold;
 	public Integer cabinSize;
 	public boolean doorsOpened;
+	public BuildingState buildingState;
 
 	private Predicate<User> hasSameDirection = new Predicate<User>() {
 		@Override
@@ -64,38 +62,38 @@ public class ElevatorState {
 		doorsOpened = false;
 		floor = 0;
 		direction = Direction.UP;
-		waitingTargets = new HashMap<>();
-		travelingTargets = new HashMap<>();
-		this.lowerFloor = ElevatorEngine.LOWER_FLOOR;
-		this.higherFloor = ElevatorEngine.HIGHER_FLOOR;
-		this.cabinSize = ElevatorEngine.CABIN_SIZE;
-		this.currentTravelersNb = 0;
+		targets = new HashMap<>();
+		lowerFloor = ElevatorEngine.LOWER_FLOOR;
+		higherFloor = ElevatorEngine.HIGHER_FLOOR;
+		cabinSize = ElevatorEngine.CABIN_SIZE;
+		currentTravelersNb = 0;
 		targetThreshold = getLimit();
+		buildingState = new BuildingState();
 	}
 
-	public ElevatorState(Integer lowerFloor, Integer higherFloor, Integer cabinSize) {
+	public ElevatorState(Integer lowerFloor, Integer higherFloor, Integer cabinSize, BuildingState buildingState) {
 		this();
 		this.lowerFloor = lowerFloor;
 		this.higherFloor = higherFloor;
 		this.cabinSize = cabinSize;
+		this.buildingState = buildingState;
 	}
 
 	public boolean isOpen() {
 		return doorsOpened;
 	}
 
-	public boolean willGivePoints(Iterable<User> targets) {
-		return Iterables.tryFind(targets, hasPotentialPoints).isPresent();
+	public boolean willGivePoints(Iterable<User> users) {
+		return Iterables.tryFind(users, hasPotentialPoints).isPresent();
 	}
 
 	public boolean willGivePoints() {
-		Iterable<User> targets = Iterables.concat(Iterables.concat(travelingTargets.values(), waitingTargets.values()));
-		return willGivePoints(targets);
+		return willGivePoints(Iterables.concat(Iterables.concat(targets.values(), buildingState.targets.values())));
 	}
 
 	private boolean hasTargets(final Direction direction) {
-		Iterable<Entry<Integer, Queue<User>>> waitings = Iterables.filter(waitingTargets.entrySet(), isAhead.get(direction));
-		Iterable<Entry<Integer, Queue<User>>> travelings = Iterables.filter(travelingTargets.entrySet(), isAhead.get(direction));
+		Iterable<Entry<Integer, Queue<User>>> waitings = Iterables.filter(buildingState.targets.entrySet(), isAhead.get(direction));
+		Iterable<Entry<Integer, Queue<User>>> travelings = Iterables.filter(targets.entrySet(), isAhead.get(direction));
 
 		if (Iterables.isEmpty(waitings) && Iterables.isEmpty(travelings)) {
 			return false;
@@ -110,10 +108,6 @@ public class ElevatorState {
 		return willGivePoints(Iterables.concat(Iterables.concat(waitingUsers, travelingUsers)));
 	}
 
-	private boolean isNotEmpty(Queue<?> queue) {
-		return queue != null && queue.size() > 0;
-	}
-
 	public boolean hasTargetsAhead() {
 		return hasTargets(direction);
 	}
@@ -124,25 +118,26 @@ public class ElevatorState {
 
 	public boolean shouldOpen() {
 		boolean willGivePoints = willGivePoints();
-		if (isNotEmpty(travelingTargets.get(floor))) {
-			if (Iterables.tryFind(travelingTargets.get(floor), hasPotentialPoints).isPresent() || !willGivePoints)
+		if (isNotEmpty(targets.get(floor))) {
+			if (Iterables.tryFind(targets.get(floor), hasPotentialPoints).isPresent() || !willGivePoints)
 				return true;
 		}
 
-		if (mayAddTargets()) {
-			Queue<User> waitings = getFirstWaiting(floor);
-			boolean waitingTargetPresent = isNotEmpty(waitings);
-			if (!waitingTargetPresent) {
-				return false;
-			}
-
-			boolean waitingTargetsSameDirection = !hasTargetsAhead() || Iterables.tryFind(waitings, hasSameDirection).isPresent();
-			if (willGivePoints) {
-				return waitingTargetsSameDirection && Iterables.tryFind(waitings, hasPotentialPoints).isPresent();
-			}
-			return waitingTargetsSameDirection;
+		if (!mayAddTargets()) {
+			return false;
 		}
-		return false;
+
+		Queue<User> waitings = getFirstWaiting(floor);
+		boolean waitingTargetPresent = isNotEmpty(waitings);
+		if (!waitingTargetPresent) {
+			return false;
+		}
+
+		boolean waitingTargetsSameDirection = !hasTargetsAhead() || Iterables.tryFind(waitings, hasSameDirection).isPresent();
+		if (willGivePoints) {
+			return waitingTargetsSameDirection && Iterables.tryFind(waitings, hasPotentialPoints).isPresent();
+		}
+		return waitingTargetsSameDirection;
 	}
 
 	public boolean thresholdNotReached() {
@@ -158,7 +153,7 @@ public class ElevatorState {
 	}
 
 	public User popWaiting() {
-		return waitingTargets.get(floor).remove();
+		return buildingState.targets.get(floor).remove();
 	}
 
 	public Command doOpen() {
@@ -195,7 +190,7 @@ public class ElevatorState {
 	}
 
 	public int getTargetsCount() {
-		return Maps.filterValues(travelingTargets, new Predicate<Queue<User>>() {
+		return Maps.filterValues(targets, new Predicate<Queue<User>>() {
 			@Override
 			public boolean apply(Queue<User> t) {
 				return isNotEmpty(t);
@@ -225,12 +220,12 @@ public class ElevatorState {
 
 		builder.append(":");
 
-		if (isNotEmpty(travelingTargets.get(floor))) {
+		if (isNotEmpty(targets.get(floor))) {
 			builder.append("<");
 		} else {
 			builder.append(" ");
 		}
-		Queue<User> users = waitingTargets.get(floor);
+		Queue<User> users = buildingState.targets.get(floor);
 		if (isNotEmpty(users) && Iterables.tryFind(users, new Predicate<User>() {
 			@Override
 			public boolean apply(User t) {
@@ -275,31 +270,21 @@ public class ElevatorState {
 	}
 
 	public User popTraveling() {
-		return travelingTargets.get(floor).remove();
+		return targets.get(floor).remove();
 	}
 
 	private Queue<User> getFirstWaiting(int atFloor) {
-		Queue<User> elements = waitingTargets.get(atFloor);
-		if (isNotEmpty(elements)) {
-			int count = cabinSize - currentTravelersNb;
-			if (isNotEmpty(travelingTargets.get(atFloor))) {
-				count += travelingTargets.get(atFloor).size();
-			}
-			if (elements.size() > count) {
-				Queue<User> firsts = new LinkedList<>();
-				for (int i = 0; i < count; i++) {
-					firsts.add(elements.peek());
-				}
-				return firsts;
-			}
+		int count = cabinSize - currentTravelersNb;
+		if (isNotEmpty(targets.get(atFloor))) {
+			count += targets.get(atFloor).size();
 		}
-		return elements;
+		return buildingState.getFirsts(count, atFloor);
 	}
 
 	public void tick() {
 		Collection<Queue<User>> queues = Lists.newArrayList();
-		queues.addAll(waitingTargets.values());
-		queues.addAll(travelingTargets.values());
+		queues.addAll(buildingState.targets.values());
+		queues.addAll(targets.values());
 		for (Queue<User> queue : queues) {
 			if (isNotEmpty(queue)) {
 				Iterator<User> iterator = queue.iterator();

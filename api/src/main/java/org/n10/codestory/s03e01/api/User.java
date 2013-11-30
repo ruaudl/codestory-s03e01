@@ -1,6 +1,5 @@
 package org.n10.codestory.s03e01.api;
 
-
 public class User {
 
 	private Integer initialFloor;

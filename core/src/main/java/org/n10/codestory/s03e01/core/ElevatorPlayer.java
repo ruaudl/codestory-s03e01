@@ -13,7 +13,8 @@ import org.n10.codestory.s03e01.api.ElevatorEngine;
 public class ElevatorPlayer {
 
 	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
-	public static final String[] PARAMS = new String[] { "atFloor", "to", "floorToGo", "threshold", "lowerFloor", "higherFloor", "cause", "cabinSize", "cabinCount", "cabin" };
+	public static final String[] PARAMS = new String[] { "atFloor", "to", "floorToGo", "threshold", "lowerFloor", "higherFloor", "cause", "cabinSize",
+			"cabinCount", "cabin" };
 	private ElevatorEngine elevator = new StateSmartElevator();
 	private TreeMap<String, String> resets = new TreeMap<String, String>();
 
