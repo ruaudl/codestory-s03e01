@@ -321,8 +321,7 @@ public class SmartElevatorTest {
 
 		elevator.call(80, Direction.DOWN);
 
-		assertCommands(elevator, DOWN);
-		assertManyCommands(elevator, 16, UP);
+		assertManyCommands(elevator, 15, UP);
 		assertCommands(elevator, OPEN);
 
 		elevator.userHasEntered(null, 0);

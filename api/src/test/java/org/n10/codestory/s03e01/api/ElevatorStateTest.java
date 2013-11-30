@@ -23,7 +23,7 @@ public class ElevatorStateTest {
 		elevatorState.waitingTargets.put(4, queue);
 		assertThat(elevatorState.hasTargetsAhead()).isTrue();
 	}
-	
+
 	@Test
 	public void testHasTravelingTargetAhead() {
 		Queue<User> queue = new LinkedList<>();
@@ -40,7 +40,7 @@ public class ElevatorStateTest {
 		elevatorState.floor = 5;
 		assertThat(elevatorState.hasTargetsAhead()).isFalse();
 	}
-	
+
 	@Test
 	public void testHasntTravelingTargetAhead() {
 		Queue<User> queue = new LinkedList<>();
@@ -58,7 +58,7 @@ public class ElevatorStateTest {
 		elevatorState.floor = 5;
 		assertThat(elevatorState.hasTargetsBehind()).isTrue();
 	}
-	
+
 	@Test
 	public void testHasWaitingTargetBehind() {
 		Queue<User> queue = new LinkedList<>();
@@ -76,7 +76,7 @@ public class ElevatorStateTest {
 		elevatorState.floor = 5;
 		assertThat(elevatorState.hasTargetsBehind()).isTrue();
 	}
-	
+
 	@Test
 	public void testHasntWaitingTargetBehind() {
 		Queue<User> queue = new LinkedList<>();
@@ -84,7 +84,7 @@ public class ElevatorStateTest {
 		elevatorState.waitingTargets.put(4, queue);
 		assertThat(elevatorState.hasTargetsBehind()).isFalse();
 	}
-	
+
 	@Test
 	public void testHasntTargetBehind() {
 		Queue<User> queue = new LinkedList<>();
@@ -92,7 +92,7 @@ public class ElevatorStateTest {
 		elevatorState.waitingTargets.put(4, queue);
 		assertThat(elevatorState.hasTargetsBehind()).isFalse();
 	}
-	
+
 	@Test
 	public void testOnlyFirstShouldNotOpen() {
 		Queue<User> queue = new LinkedList<>();
@@ -104,7 +104,7 @@ public class ElevatorStateTest {
 		elevatorState.travelingTargets.put(1, new LinkedList<>(Arrays.asList(new User(Direction.UP, 0))));
 		assertThat(elevatorState.shouldOpen()).isFalse();
 	}
-	
+
 	@Test
 	public void testOnlyFirstShouldOpen() {
 		Queue<User> queue = new LinkedList<>();
@@ -116,7 +116,7 @@ public class ElevatorStateTest {
 		elevatorState.travelingTargets.put(1, new LinkedList<>(Arrays.asList(new User(Direction.UP, 0))));
 		assertThat(elevatorState.shouldOpen()).isTrue();
 	}
-	
+
 	@Test
 	public void limitIsOk() {
 		ElevatorState elevator = new ElevatorState(0, 19, 42);

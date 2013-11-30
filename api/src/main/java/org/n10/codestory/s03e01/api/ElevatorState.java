@@ -18,7 +18,6 @@ public class ElevatorState {
 
 	public int floor;
 	public int currentTravelersNb;
-	public Command nextCommand;
 	public Direction direction;
 	public Map<Integer, Queue<User>> waitingTargets = new HashMap<>();
 	public Map<Integer, Queue<User>> travelingTargets = new HashMap<>();
@@ -64,7 +63,6 @@ public class ElevatorState {
 	public ElevatorState() {
 		doorsOpened = false;
 		floor = 0;
-		nextCommand = Command.NOTHING;
 		direction = Direction.UP;
 		waitingTargets = new HashMap<>();
 		travelingTargets = new HashMap<>();
@@ -82,12 +80,8 @@ public class ElevatorState {
 		this.cabinSize = cabinSize;
 	}
 
-	public boolean willOpen() {
-		return nextCommand == Command.OPEN;
-	}
-
-	public boolean willDoSomething() {
-		return nextCommand != Command.NOTHING;
+	public boolean isOpen() {
+		return doorsOpened;
 	}
 
 	public boolean willGivePoints(Iterable<User> targets) {
@@ -167,26 +161,37 @@ public class ElevatorState {
 		return waitingTargets.get(floor).remove();
 	}
 
-	public void doOpen() {
+	public Command doOpen() {
 		doorsOpened = true;
-		nextCommand = Command.OPEN;
+		return Command.OPEN;
 	}
 
-	public void doClose() {
+	public Command doClose() {
 		doorsOpened = false;
-		nextCommand = Command.CLOSE;
+		return Command.CLOSE;
 	}
 
-	public void doNothing() {
-		nextCommand = Command.NOTHING;
+	public Command doContinue() {
+		return doMove(direction);
 	}
 
-	public void doContinue() {
-		doMove(direction);
+	public Command doReverse() {
+		return doMove(inverse(direction));
 	}
 
-	public void doReverse() {
-		doMove(inverse(direction));
+	private Command doMove(Direction direction) {
+		switch (direction) {
+		case UP:
+			floor++;
+			this.direction = Direction.UP;
+			return Command.UP;
+		case DOWN:
+			floor--;
+			this.direction = Direction.DOWN;
+			return Command.DOWN;
+		default:
+			return Command.NOTHING;
+		}
 	}
 
 	public int getTargetsCount() {
@@ -251,22 +256,6 @@ public class ElevatorState {
 
 		builder.append("]");
 		return builder.toString();
-	}
-
-	private void doMove(Direction direction) {
-		switch (direction) {
-		case UP:
-			floor++;
-			nextCommand = Command.UP;
-			this.direction = Direction.UP;
-			break;
-		case DOWN:
-			floor--;
-			nextCommand = Command.DOWN;
-			this.direction = Direction.DOWN;
-		default:
-			break;
-		}
 	}
 
 	private Direction inverse(Direction direction) {

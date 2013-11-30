@@ -20,26 +20,20 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public Command nextCommand() throws ElevatorIsBrokenException {
-		Command currentCommand = state.nextCommand;
+		Command command = Command.NOTHING;
 
-		if (state.willOpen()) {
-			state.doClose();
+		if (state.isOpen()) {
+			command = state.doClose();
 		} else if (state.shouldOpen()) {
-			state.doOpen();
+			command = state.doOpen();
 		} else if (state.hasTargetsAhead()) {
-			state.doContinue();
+			command = state.doContinue();
 		} else if (state.hasTargetsBehind()) {
-			state.doReverse();
-		} else {
-			state.doNothing();
-		}
-
-		if (currentCommand == Command.NOTHING && state.willDoSomething()) {
-			currentCommand = nextCommand();
+			command = state.doReverse();
 		}
 
 		state.tick();
-		return currentCommand;
+		return command;
 	}
 
 	@Override
