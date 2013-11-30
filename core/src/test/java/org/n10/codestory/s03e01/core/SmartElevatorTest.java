@@ -280,9 +280,11 @@ public class SmartElevatorTest {
 	@Test
 	public void shouldCareOfPoints() {
 		ElevatorEngine elevator = new StateSmartElevator();
+
 		elevator.reset(0, 100, 2, 1, "");
 		elevator.call(10, Direction.UP);
 		elevator.call(50, Direction.UP);
+
 		assertManyCommands(elevator, 10, UP);
 		assertCommands(elevator, OPEN);
 
@@ -296,6 +298,7 @@ public class SmartElevatorTest {
 
 		assertManyCommands(elevator, 15, UP);
 		assertCommands(elevator, OPEN);
+
 		elevator.userHasExited(null, 0);
 
 		assertCommands(elevator, CLOSE);
@@ -314,11 +317,30 @@ public class SmartElevatorTest {
 		elevator.userHasExited(null, 0);
 
 		assertCommands(elevator, CLOSE);
-		assertManyCommands(elevator, 10, DOWN);
+		assertManyCommands(elevator, 5, DOWN);
+
+		elevator.call(80, Direction.DOWN);
+
+		assertCommands(elevator, DOWN);
+		assertManyCommands(elevator, 16, UP);
+		assertCommands(elevator, OPEN);
+
+		elevator.userHasEntered(null, 0);
+		elevator.go(30, 0);
+
+		assertCommands(elevator, CLOSE);
+		assertManyCommands(elevator, 50, DOWN);
+		assertCommands(elevator, OPEN);
+
+		elevator.userHasExited(null, 0);
+
+		assertCommands(elevator, CLOSE);
+		assertManyCommands(elevator, 30, UP);
 		assertCommands(elevator, OPEN);
 
 		elevator.userHasExited(null, 0);
 
 		assertCommands(elevator, CLOSE, NOTHING);
 	}
+
 }

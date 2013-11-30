@@ -22,10 +22,6 @@ public class StateSmartElevator implements ElevatorEngine {
 	public Command nextCommand() throws ElevatorIsBrokenException {
 		Command currentCommand = state.nextCommand;
 
-		// if (currentCommand == Command.CLOSE) {
-		// state.clearTraveling();
-		// }
-
 		if (state.willOpen()) {
 			state.doClose();
 		} else if (state.shouldOpen()) {
@@ -41,6 +37,7 @@ public class StateSmartElevator implements ElevatorEngine {
 		if (currentCommand == Command.NOTHING && state.willDoSomething()) {
 			currentCommand = nextCommand();
 		}
+
 		state.tick();
 		return currentCommand;
 	}

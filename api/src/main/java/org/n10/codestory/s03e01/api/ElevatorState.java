@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -37,6 +38,11 @@ public class ElevatorState {
 		@Override
 		public boolean apply(User user) {
 			return user.willGivePointsFrom(floor, doorsOpened);
+		}
+	};
+	private Function<Entry<Integer, Queue<User>>, Queue<User>> userExtraction = new Function<Entry<Integer, Queue<User>>, Queue<User>>() {
+		public Queue<User> apply(Entry<Integer, Queue<User>> input) {
+			return input.getValue();
 		}
 	};
 	private Map<Direction, Predicate<Entry<Integer, Queue<User>>>> isAhead = new HashMap<>();
@@ -84,15 +90,30 @@ public class ElevatorState {
 		return nextCommand != Command.NOTHING;
 	}
 
+	public boolean willGivePoints(Iterable<User> targets) {
+		return Iterables.tryFind(targets, hasPotentialPoints).isPresent();
+	}
+
 	public boolean willGivePoints() {
-		Iterable<User> values = Iterables.concat(Iterables.concat(travelingTargets.values(), waitingTargets.values()));
-		return Iterables.tryFind(values, hasPotentialPoints).isPresent();
+		Iterable<User> targets = Iterables.concat(Iterables.concat(travelingTargets.values(), waitingTargets.values()));
+		return willGivePoints(targets);
 	}
 
 	private boolean hasTargets(final Direction direction) {
-		boolean hasWaiting = Iterables.tryFind(waitingTargets.entrySet(), isAhead.get(direction)).isPresent();
-		boolean hasTravelling = Iterables.tryFind(travelingTargets.entrySet(), isAhead.get(direction)).isPresent();
-		return hasWaiting || hasTravelling;
+		Iterable<Entry<Integer, Queue<User>>> waitings = Iterables.filter(waitingTargets.entrySet(), isAhead.get(direction));
+		Iterable<Entry<Integer, Queue<User>>> travelings = Iterables.filter(travelingTargets.entrySet(), isAhead.get(direction));
+
+		if (Iterables.isEmpty(waitings) && Iterables.isEmpty(travelings)) {
+			return false;
+		}
+
+		if (!willGivePoints()) {
+			return true;
+		}
+
+		Iterable<Queue<User>> waitingUsers = Iterables.transform(waitings, userExtraction);
+		Iterable<Queue<User>> travelingUsers = Iterables.transform(travelings, userExtraction);
+		return willGivePoints(Iterables.concat(Iterables.concat(waitingUsers, travelingUsers)));
 	}
 
 	private boolean isNotEmpty(Queue<?> queue) {
@@ -111,7 +132,7 @@ public class ElevatorState {
 		boolean willGivePoints = willGivePoints();
 		if (isNotEmpty(travelingTargets.get(floor))) {
 			if (Iterables.tryFind(travelingTargets.get(floor), hasPotentialPoints).isPresent() || !willGivePoints)
-			return true;
+				return true;
 		}
 
 		if (mayAddTargets()) {
