@@ -342,4 +342,47 @@ public class SmartElevatorTest {
 		assertCommands(elevator, CLOSE, NOTHING);
 	}
 
+	@Test
+	public void shouldNotCareOfPointsWhenFull() {
+		ElevatorEngine elevator = new StateSmartElevator();
+
+		elevator.reset(0, 100, 2, 1, "");
+		elevator.call(50, Direction.UP);
+		elevator.call(50, Direction.UP);
+
+		assertManyCommands(elevator, 50, UP);
+		assertCommands(elevator, OPEN);
+
+		elevator.userHasEntered(null, 0);
+		elevator.go(80, 0);
+		elevator.userHasEntered(null, 0);
+		elevator.go(80, 0);
+
+		assertCommands(elevator, CLOSE);
+		assertManyCommands(elevator, 20, UP);
+
+		elevator.call(75, Direction.UP);
+
+		assertManyCommands(elevator, 10, UP);
+		assertCommands(elevator, OPEN);
+
+		elevator.userHasExited(null, 0);
+		elevator.userHasExited(null, 0);
+
+		assertCommands(elevator, CLOSE);
+		assertManyCommands(elevator, 5, DOWN);
+		assertCommands(elevator, OPEN);
+
+		elevator.userHasEntered(null, 0);
+		elevator.go(90, 0);
+
+		assertCommands(elevator, CLOSE);
+		assertManyCommands(elevator, 15, UP);
+		assertCommands(elevator, OPEN);
+
+		elevator.userHasExited(null, 0);
+
+		assertCommands(elevator, CLOSE, NOTHING);
+	}
+
 }

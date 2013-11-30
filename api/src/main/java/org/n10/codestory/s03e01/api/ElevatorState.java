@@ -82,7 +82,7 @@ public class ElevatorState extends State {
 			return false;
 		}
 
-		if (!willGivePoints()) {
+		if (!willGivePoints() || !mayAddTargets()) {
 			return true;
 		}
 
@@ -99,12 +99,16 @@ public class ElevatorState extends State {
 		return hasTargets(inverse(direction));
 	}
 
-	public boolean hasTargetsToGetOut() {
+	public boolean hasTravelersToGetOut() {
 		return isNotEmpty(targets.get(floor));
 	}
 
-	public boolean hasTargetsToGetOutWithPoints() {
-		return hasTargetsToGetOut() && (Iterables.tryFind(targets.get(floor), hasPotentialPoints).isPresent() || !willGivePoints());
+	public boolean hasTravelersToGetOutWithPoints() {
+		return hasTravelersToGetOut() && (Iterables.tryFind(targets.get(floor), hasPotentialPoints).isPresent() || !willGivePoints());
+	}
+
+	public boolean hasTravelersWithPoints() {
+		return travelersCount > 0 && (Iterables.tryFind(Iterables.concat(targets.values()), hasPotentialPoints).isPresent());
 	}
 
 	public boolean thresholdNotReached() {
@@ -120,12 +124,12 @@ public class ElevatorState extends State {
 	}
 
 	public boolean shouldOpen() {
-		if (hasTargetsToGetOutWithPoints()) {
+		if (hasTravelersToGetOutWithPoints()) {
 			return true;
 		}
 
 		if (!mayAddTargets()) {
-			return false;
+			return hasTravelersToGetOut() && !hasTravelersWithPoints();
 		}
 
 		Queue<User> waitings = getFirstWaiting(floor);
@@ -196,7 +200,7 @@ public class ElevatorState extends State {
 
 	public String getStatus() {
 		Queue<User> users = buildingState.targets.get(floor);
-		String getOut = hasTargetsToGetOut() ? "<" : " ";
+		String getOut = hasTravelersToGetOut() ? "<" : " ";
 		String getIn = isNotEmpty(users) && Iterables.tryFind(users, hasSameDirection).isPresent() ? "≥" : isNotEmpty(users) ? ">" : " ";
 		String aheadOrBehind = hasTargetsAhead() ? "→" : hasTargetsBehind() ? "↺" : " ";
 		String state = String.format("(%02d:%s:%02d/%02d:%s%s:%s)", floor, direction.toShortString(), getTargetsCount(), targetThreshold, getOut, getIn,
