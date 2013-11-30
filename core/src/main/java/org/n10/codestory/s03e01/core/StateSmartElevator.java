@@ -33,7 +33,7 @@ public class StateSmartElevator implements ElevatorEngine {
 
 		elevator.tickUsers();
 		building.tickUsers();
-		System.out.println(String.format("Command %s returned with states:\n%s", command, this));
+//		System.out.println(String.format("Command %s returned with states:\n%s", command, this));
 		return command;
 	}
 
