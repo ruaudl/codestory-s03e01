@@ -7,37 +7,48 @@ import java.util.Map.Entry;
 import java.util.Queue;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 
 public abstract class State {
 
 	public Map<Integer, Queue<User>> targets = new HashMap<>();
 
-	public void pushUser(User user, Integer atFloor) {
+	public Queue<User> getUsers(int atFloor) {
 		Queue<User> queue = targets.get(atFloor);
 		if (queue == null) {
 			queue = new LinkedList<>();
 			targets.put(atFloor, queue);
 		}
-		queue.add(user);
+		return queue;
+	}
+
+	public void pushUser(User user, Integer atFloor) {
+		getUsers(atFloor).add(user);
 	}
 
 	public User popUser(int atFloor) {
-		return targets.get(atFloor).remove();
+		return getUsers(atFloor).remove();
 	}
 
-	public Queue<User> getFirstUsers(int count, int atFloor) {
-		Queue<User> elements = targets.get(atFloor);
-		if (isNotEmpty(elements)) {
-			if (elements.size() > count) {
-				Queue<User> firsts = new LinkedList<>();
-				for (int i = 0; i < count; i++) {
-					firsts.add(elements.peek());
-				}
-				return firsts;
+	public User popUser(int atFloor, final Direction direction) {
+		User userToPop = Iterables.tryFind(getUsers(atFloor), hasSameDirection(direction)).get();
+		getUsers(atFloor).remove(userToPop);
+		return userToPop;
+	}
+
+	public Iterable<User> getFirstUsers(int count, int atFloor, final Direction direction) {
+		return Iterables.limit(Iterables.filter(getUsers(atFloor), hasSameDirection(direction)), count);
+	}
+
+	public int getTargetsCount() {
+		return Maps.filterValues(targets, new Predicate<Queue<User>>() {
+			@Override
+			public boolean apply(Queue<User> queue) {
+				return isNotEmpty(queue);
 			}
-		}
-		return elements;
+		}).size();
 	}
 
 	public void tickUsers() {
@@ -56,6 +67,12 @@ public abstract class State {
 		return String.format("(%d=%s)", points, targets.toString());
 	}
 
+	public static Function<Entry<Integer, Queue<User>>, Queue<User>> USER_EXTRACTION = new Function<Entry<Integer, Queue<User>>, Queue<User>>() {
+		public Queue<User> apply(Entry<Integer, Queue<User>> input) {
+			return input.getValue();
+		}
+	};
+
 	public static Direction inverse(Direction direction) {
 		switch (direction) {
 		case UP:
@@ -68,14 +85,30 @@ public abstract class State {
 		return null;
 	}
 
-	public static Function<Entry<Integer, Queue<User>>, Queue<User>> USER_EXTRACTION = new Function<Entry<Integer, Queue<User>>, Queue<User>>() {
-		public Queue<User> apply(Entry<Integer, Queue<User>> input) {
-			return input.getValue();
+	public static Command openTo(Direction direction) {
+		switch (direction) {
+		case UP:
+			return Command.OPEN_UP;
+		case DOWN:
+			return Command.OPEN_DOWN;
 		}
-	};
-
-	public static boolean isNotEmpty(Queue<?> queue) {
-		return queue != null && queue.size() > 0;
+		return Command.OPEN;
 	}
 
+	public static boolean isNotEmpty(Iterable<?> elements) {
+		return elements != null && elements.iterator().hasNext();
+	}
+
+	public static boolean isEmpty(Iterable<?> elements) {
+		return elements == null || !elements.iterator().hasNext();
+	}
+
+	public static final Predicate<User> hasSameDirection(final Direction direction) {
+		return new Predicate<User>() {
+			@Override
+			public boolean apply(User user) {
+				return user.getDirectionToGo() == direction;
+			}
+		};
+	}
 }

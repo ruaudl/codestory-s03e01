@@ -8,7 +8,6 @@ import java.util.Queue;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 
 public class ElevatorState extends State {
 
@@ -20,12 +19,6 @@ public class ElevatorState extends State {
 	public Integer cabinSize;
 	public BuildingState buildingState;
 
-	private Predicate<User> hasSameDirection = new Predicate<User>() {
-		@Override
-		public boolean apply(User user) {
-			return user.getDirectionToGo() == direction;
-		}
-	};
 	private Predicate<User> hasPotentialPoints = new Predicate<User>() {
 		@Override
 		public boolean apply(User user) {
@@ -104,7 +97,7 @@ public class ElevatorState extends State {
 	}
 
 	public boolean hasTravelersToGetOutWithPoints() {
-		return hasTravelersToGetOut() && (Iterables.tryFind(targets.get(floor), hasPotentialPoints).isPresent() || !willGivePoints());
+		return hasTravelersToGetOut() && (Iterables.tryFind(getUsers(floor), hasPotentialPoints).isPresent() || !willGivePoints());
 	}
 
 	public boolean hasTravelersWithPoints() {
@@ -132,14 +125,14 @@ public class ElevatorState extends State {
 			return hasTravelersToGetOut() && !hasTravelersWithPoints();
 		}
 
-		Queue<User> waitings = getFirstWaiting(floor);
+		Iterable<User> waitings = getFirstWaiting(floor);
 		if (!isNotEmpty(waitings)) {
 			return false;
 		}
 
 		Predicate<User> predicate = Predicates.alwaysTrue();
 		if (hasTargetsAhead()) {
-			predicate = Predicates.and(predicate, hasSameDirection);
+			predicate = Predicates.and(predicate, hasSameDirection(direction));
 		}
 		if (willGivePoints()) {
 			predicate = Predicates.and(predicate, hasPotentialPoints);
@@ -156,8 +149,13 @@ public class ElevatorState extends State {
 	}
 
 	public Command doOpen() {
+		if (!hasTargetsAhead() && !Iterables.tryFind(getFirstWaitingFollowing(floor), hasPotentialPoints).isPresent()) {
+			if (hasTargetsBehind() || Iterables.tryFind(getFirstWaitingReversing(floor), hasPotentialPoints).isPresent()) {
+				direction = inverse(direction);
+			}
+		}
 		doorsOpened = true;
-		return Command.OPEN;
+		return openTo(direction);
 	}
 
 	public Command doClose() {
@@ -188,20 +186,10 @@ public class ElevatorState extends State {
 		}
 	}
 
-	public int getTargetsCount() {
-		return Maps.filterValues(targets, new Predicate<Queue<User>>() {
-			@Override
-			public boolean apply(Queue<User> t) {
-				return isNotEmpty(t);
-			}
-		}).size();
-
-	}
-
 	public String getStatus() {
-		Queue<User> users = buildingState.targets.get(floor);
 		String getOut = hasTravelersToGetOut() ? "<" : " ";
-		String getIn = isNotEmpty(users) && Iterables.tryFind(users, hasSameDirection).isPresent() ? "≥" : isNotEmpty(users) ? ">" : " ";
+		Queue<User> waitings = buildingState.getUsers(floor);
+		String getIn = Iterables.tryFind(waitings, hasSameDirection(direction)).isPresent() ? "≥" : isNotEmpty(waitings) ? ">" : " ";
 		String aheadOrBehind = hasTargetsAhead() ? "→" : hasTargetsBehind() ? "↺" : " ";
 		String state = String.format("(%02d:%s:%02d/%02d:%s%s:%s)", floor, direction.toShortString(), getTargetsCount(), targetThreshold, getOut, getIn,
 				aheadOrBehind);
@@ -213,11 +201,23 @@ public class ElevatorState extends State {
 		return String.format("%s\n\t%s", super.toString(), getStatus());
 	}
 
-	private Queue<User> getFirstWaiting(int atFloor) {
-		int count = cabinSize - travelersCount;
-		if (isNotEmpty(targets.get(atFloor))) {
-			count += targets.get(atFloor).size();
+	private int getRoom(int atFloor) {
+		return cabinSize - travelersCount + getUsers(atFloor).size();
+	}
+
+	private Iterable<User> getFirstWaitingFollowing(int atFloor) {
+		return buildingState.getFirstUsers(getRoom(atFloor), atFloor, direction);
+	}
+
+	private Iterable<User> getFirstWaitingReversing(int atFloor) {
+		return buildingState.getFirstUsers(getRoom(atFloor), atFloor, inverse(direction));
+	}
+
+	private Iterable<User> getFirstWaiting(int atFloor) {
+		Iterable<User> waitings = getFirstWaitingFollowing(atFloor);
+		if (!hasTargetsAhead()) {
+			waitings = Iterables.concat(waitings, getFirstWaitingReversing(atFloor));
 		}
-		return buildingState.getFirstUsers(count, atFloor);
+		return waitings;
 	}
 }

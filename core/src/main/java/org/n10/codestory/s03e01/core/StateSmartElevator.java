@@ -33,7 +33,8 @@ public class StateSmartElevator implements ElevatorEngine {
 
 		elevator.tickUsers();
 		building.tickUsers();
-//		System.out.println(String.format("Command %s returned with states:\n%s", command, this));
+		// System.out.println(String.format("Command %s returned with states:\n%s",
+		// command, this));
 		return command;
 	}
 
@@ -47,7 +48,7 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public ElevatorEngine go(Integer floorToGo, Integer cabin) throws ElevatorIsBrokenException {
-		User user = building.popUser(elevator.floor);
+		User user = building.popUser(elevator.floor, elevator.direction);
 		user.setFloorToGo(floorToGo);
 		user.travels();
 		System.out.println(String.format("User has entered: %s", user));

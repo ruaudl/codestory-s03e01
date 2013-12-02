@@ -18,6 +18,11 @@ public class User {
 		this.state = State.WAITING;
 	}
 
+	public User(Direction directionToGo, Integer initialFloor, Integer floorToGo) {
+		this(directionToGo, initialFloor);
+		this.floorToGo = floorToGo;
+	}
+
 	boolean waiting() {
 		return state == State.WAITING;
 	}

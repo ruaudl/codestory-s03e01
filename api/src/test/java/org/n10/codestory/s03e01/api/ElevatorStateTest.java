@@ -83,13 +83,13 @@ public class ElevatorStateTest {
 	}
 
 	@Test
-	public void testOnlyFirstShouldNotOpen() {
+	public void testSecondShouldOpen() {
 		elevatorState.cabinSize = 2;
 		elevatorState.travelersCount = 1;
 		buildingState.pushUser(new User(Direction.DOWN, 0), 0);
 		buildingState.pushUser(new User(Direction.UP, 0), 0);
 		buildingState.pushUser(new User(Direction.UP, 0), 1);
-		assertThat(elevatorState.shouldOpen()).isFalse();
+		assertThat(elevatorState.shouldOpen()).isTrue();
 	}
 
 	@Test
