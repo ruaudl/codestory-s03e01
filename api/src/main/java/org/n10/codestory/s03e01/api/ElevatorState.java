@@ -18,7 +18,8 @@ public class ElevatorState extends State {
 	public Integer targetThreshold;
 	public Integer cabinSize;
 	public BuildingState buildingState;
-
+	private final int cabinId;
+	
 	private Predicate<User> hasPotentialPoints = new Predicate<User>() {
 		@Override
 		public boolean apply(User user) {
@@ -26,6 +27,7 @@ public class ElevatorState extends State {
 		}
 	};
 	private Map<Direction, Predicate<Entry<Integer, Queue<User>>>> isAhead = new HashMap<>();
+	
 	{
 		isAhead.put(Direction.UP, new Predicate<Entry<Integer, Queue<User>>>() {
 			@Override
@@ -41,17 +43,18 @@ public class ElevatorState extends State {
 		});
 	}
 
-	public ElevatorState(BuildingState buildingState) {
+	public ElevatorState(BuildingState buildingState, int cabinId) {
 		floor = 0;
 		travelersCount = 0;
 		doorsOpened = false;
 		direction = Direction.UP;
 		this.buildingState = buildingState;
 		targetThreshold = buildingState.getLimit();
+		this.cabinId = cabinId;
 	}
 
-	public ElevatorState(BuildingState buildingState, Integer cabinSize) {
-		this(buildingState);
+	public ElevatorState(BuildingState buildingState, Integer cabinSize, int cabinId) {
+		this(buildingState, cabinId);
 		this.cabinSize = cabinSize;
 	}
 

@@ -92,10 +92,10 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, Integer cabinSize, Integer cabinCount, String cause) throws ElevatorIsBrokenException {
-		building = new BuildingState(lowerFloor, higherFloor);
+		building = new BuildingState(lowerFloor, higherFloor, cabinCount);
 		List<ElevatorState> newElevators = new ArrayList<>(cabinSize);
 		for (int i=0; i< cabinSize; i++) {
-		ElevatorState newState = new ElevatorState(building, cabinSize);
+		ElevatorState newState = new ElevatorState(building, cabinSize, i);
 		if (elevators != null && i < elevators.size() && elevators.get(i) != null) {
 			newState.targetThreshold = elevators.get(i).targetThreshold;
 		}

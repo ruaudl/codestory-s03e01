@@ -16,7 +16,7 @@ public class ElevatorStateTest {
 	@Before
 	public void setUp() {
 		buildingState = new BuildingState();
-		elevatorState = new ElevatorState(buildingState);
+		elevatorState = new ElevatorState(buildingState, 0);
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class ElevatorStateTest {
 
 	@Test
 	public void limitIsOk() {
-		ElevatorState elevator = new ElevatorState(new BuildingState(0, 19), 42);
+		ElevatorState elevator = new ElevatorState(new BuildingState(0, 19, 1), 42, 0);
 		assertThat(elevator.targetThreshold).isEqualTo(6);
 	}
 }
