@@ -1,5 +1,7 @@
 package org.n10.codestory.s03e01.api;
 
+import java.util.List;
+
 public interface ElevatorEngine {
 
 	final static Integer LOWER_FLOOR = 0;
@@ -11,7 +13,7 @@ public interface ElevatorEngine {
 
 	ElevatorEngine go(Integer floorToGo, Integer cabin) throws ElevatorIsBrokenException;
 
-	Command nextCommand() throws ElevatorIsBrokenException;
+	List<Command> nextCommand() throws ElevatorIsBrokenException;
 
 	ElevatorEngine userHasEntered(User user, Integer cabin) throws ElevatorIsBrokenException;
 

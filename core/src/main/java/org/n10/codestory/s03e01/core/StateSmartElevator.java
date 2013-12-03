@@ -1,5 +1,11 @@
 package org.n10.codestory.s03e01.core;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.n10.codestory.s03e01.api.BuildingState;
 import org.n10.codestory.s03e01.api.Command;
 import org.n10.codestory.s03e01.api.Direction;
@@ -10,7 +16,7 @@ import org.n10.codestory.s03e01.api.User;
 
 public class StateSmartElevator implements ElevatorEngine {
 
-	private ElevatorState elevator;
+	private List<ElevatorState> elevators;
 	private BuildingState building;
 
 	public StateSmartElevator() {
@@ -18,7 +24,21 @@ public class StateSmartElevator implements ElevatorEngine {
 	}
 
 	@Override
-	public Command nextCommand() throws ElevatorIsBrokenException {
+	public List<Command> nextCommand() throws ElevatorIsBrokenException {
+		List<Command> commands = Lists.transform(elevators, new Function<ElevatorState, Command>() {
+
+											@Override
+											public Command apply(ElevatorState input) {
+												return nextCommand(input);
+											}
+										});
+		building.tickUsers();
+		// System.out.println(String.format("Command %s returned with states:\n%s",
+		// command, this));
+		return commands;
+	}
+	
+	private Command nextCommand(ElevatorState elevator) {
 		Command command = Command.NOTHING;
 
 		if (elevator.isOpen()) {
@@ -32,9 +52,6 @@ public class StateSmartElevator implements ElevatorEngine {
 		}
 
 		elevator.tickUsers();
-		building.tickUsers();
-		// System.out.println(String.format("Command %s returned with states:\n%s",
-		// command, this));
 		return command;
 	}
 
@@ -48,6 +65,7 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public ElevatorEngine go(Integer floorToGo, Integer cabin) throws ElevatorIsBrokenException {
+		ElevatorState elevator = elevators.get(cabin);
 		User user = building.popUser(elevator.floor, elevator.direction);
 		user.setFloorToGo(floorToGo);
 		user.travels();
@@ -58,12 +76,13 @@ public class StateSmartElevator implements ElevatorEngine {
 
 	@Override
 	public ElevatorEngine userHasEntered(User user, Integer cabin) throws ElevatorIsBrokenException {
-		elevator.travelersCount++;
+		elevators.get(cabin).travelersCount++;
 		return this;
 	}
 
 	@Override
 	public ElevatorEngine userHasExited(User user, Integer cabin) throws ElevatorIsBrokenException {
+		ElevatorState elevator = elevators.get(cabin);
 		User traveler = elevator.popUser();
 		traveler.arrived();
 		System.out.println(String.format("User has exited: %s", traveler));
@@ -74,27 +93,42 @@ public class StateSmartElevator implements ElevatorEngine {
 	@Override
 	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, Integer cabinSize, Integer cabinCount, String cause) throws ElevatorIsBrokenException {
 		building = new BuildingState(lowerFloor, higherFloor);
+		List<ElevatorState> newElevators = new ArrayList<>(cabinSize);
+		for (int i=0; i< cabinSize; i++) {
 		ElevatorState newState = new ElevatorState(building, cabinSize);
-		if (elevator != null) {
-			newState.targetThreshold = elevator.targetThreshold;
+		if (elevators != null && i < elevators.size() && elevators.get(i) != null) {
+			newState.targetThreshold = elevators.get(i).targetThreshold;
 		}
-		elevator = newState;
+		newElevators.add(newState);
+		}
+		elevators = newElevators;
 		return this;
 	}
 
 	@Override
 	public ElevatorEngine limit(Integer limit) {
-		elevator.targetThreshold = limit;
+		for (ElevatorState elevator : elevators) {
+			elevator.targetThreshold = limit;	
+		}
 		return this;
 	}
 
 	@Override
 	public String getStatus() {
-		return elevator.getStatus();
+		StringBuilder builder = new StringBuilder();
+		for (ElevatorState elevator : elevators) {
+			builder.append(elevator.getStatus());
+			builder.append(" | ");
+		}
+		return builder.toString();
 	}
 
 	@Override
 	public String toString() {
-		return String.format("E=%s\nB=%s", elevator.toString(), building.toString());
+		StringBuilder builder = new StringBuilder();
+		for (ElevatorState elevator : elevators) {
+			builder.append(String.format("E=%s\n", elevator.toString()));
+		}
+		return builder.append(String.format("B=%s", building.toString())).toString();
 	}
 }

@@ -1,5 +1,6 @@
 package org.n10.codestory.s03e01.core;
 
+import com.google.common.base.Joiner;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
@@ -28,7 +29,8 @@ public class ElevatorPlayer {
 		case "/nextCommands":
 			String command = "";
 			synchronized (elevator) {
-				command = elevator.nextCommand().toString() + "\nNOTHING";
+				command = Joiner.on("\n").join(elevator.nextCommand());
+				//command = elevator.nextCommand().toString() + "\nNOTHING";
 				stream.print(command);
 			}
 			logTarget = String.format("[%s = %s]", request.getTarget(), command.replace("\n", "-"));

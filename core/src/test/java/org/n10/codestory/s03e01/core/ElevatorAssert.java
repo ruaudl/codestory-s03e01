@@ -12,13 +12,13 @@ public final class ElevatorAssert {
 
 	public static void assertCommands(ElevatorEngine elevator, Command... commands) {
 		for (Command command : commands) {
-			assertThat(elevator.nextCommand()).isEqualTo(command);
+			assertThat(elevator.nextCommand().get(0)).isEqualTo(command);
 		}
 	}
 
 	public static void assertManyCommands(ElevatorEngine elevator, int times, Command command) {
 		for (int i = 0; i < times; i++) {
-			assertThat(elevator.nextCommand()).isEqualTo(command);
+			assertThat(elevator.nextCommand().get(0)).isEqualTo(command);
 		}
 	}
 }
