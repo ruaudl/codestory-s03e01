@@ -482,4 +482,28 @@ public class SmartElevatorTest {
 		assertCommands(elevator, asList(CLOSE, NOTHING), asList(NOTHING, NOTHING));
 	}
 
+	@Test
+	public void shouldOpenSecondCabinsToCallerDirection() {
+		ElevatorEngine elevator = new StateSmartElevator();
+		elevator.reset(-2, 8, 10, 2, null);
+
+		elevator.call(3, Direction.DOWN);
+		assertCommands(elevator, asList(NOTHING, UP), asList(NOTHING, UP), asList(NOTHING, UP), asList(NOTHING, OPEN_DOWN));
+
+		elevator.userHasEntered(null, 1);
+		elevator.go(-2, 1);
+		assertCommands(elevator, asList(NOTHING, CLOSE), asList(NOTHING, DOWN), asList(NOTHING, DOWN), asList(NOTHING, DOWN), asList(NOTHING, DOWN));
+
+		elevator.call(-2, Direction.UP);
+		assertCommands(elevator, asList(DOWN, DOWN), asList(DOWN, OPEN_UP));
+
+		elevator.userHasExited(null, 1);
+		elevator.userHasEntered(null, 1);
+		elevator.go(-1, 1);
+		assertCommands(elevator, asList(NOTHING, CLOSE), asList(NOTHING, UP), asList(NOTHING, OPEN_UP));
+
+		elevator.userHasExited(null, 1);
+		assertCommands(elevator, asList(NOTHING, CLOSE), asList(NOTHING, NOTHING));
+	}
+
 }
