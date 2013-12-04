@@ -1,5 +1,6 @@
 package org.n10.codestory.s03e01.server;
 
+import java.awt.font.NumericShaper;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
@@ -15,15 +16,22 @@ import org.simpleframework.transport.Server;
 import org.simpleframework.transport.connect.Connection;
 import org.simpleframework.transport.connect.SocketConnection;
 
+import com.google.common.base.Strings;
+
 public class ElevatorServer implements Container {
 
 	private ElevatorPlayer player = new ElevatorPlayer();
 
 	public static void main(String[] args) throws IOException {
+		int port = 4567;
+		String portSetting = System.getProperty("app.port");
+		if (Strings.emptyToNull(portSetting) != null) {
+			port = Integer.valueOf(portSetting);
+		}
 		Container container = new ElevatorServer();
 		Server server = new ContainerServer(container);
 		Connection connection = new SocketConnection(server);
-		SocketAddress address = new InetSocketAddress(4567);
+		SocketAddress address = new InetSocketAddress(port);
 		connection.connect(address);
 	}
 
