@@ -1,5 +1,15 @@
 package org.n10.codestory.s03e01.api;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Map.Entry;
+import java.util.Queue;
+import java.util.Set;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+
 public class BuildingState extends State {
 
 	public Integer lowerFloor;
@@ -19,6 +29,39 @@ public class BuildingState extends State {
 		this.cabinCount = cabinCount;
 	}
 
+	public Predicate<? super Integer> isInRange(final int cabinId) {
+		return new Predicate<Integer>() {
+			@Override
+			public boolean apply(Integer floor) {
+				return floorInRange(floor, cabinId);
+			}
+		};
+	}
+
+	public Collection<Queue<User>> getUsers(int cabinId) {
+		return Maps.filterKeys(targets, isInRange(cabinId)).values();
+	}
+
+	public Set<Entry<Integer, Queue<User>>> getUsersByFloor(int cabinId) {
+		return Maps.filterKeys(targets, isInRange(cabinId)).entrySet();
+	}
+
+	public Queue<User> getUsersAtFloor(int atFloor, int cabinId) {
+		Queue<User> queue = new LinkedList<>();
+		if (floorInRange(atFloor, cabinId)) {
+			queue = targets.get(atFloor);
+			if (queue == null) {
+				queue = new LinkedList<>();
+				targets.put(atFloor, queue);
+			}
+		}
+		return queue;
+	}
+
+	public Iterable<User> getFirstUsers(int count, int atFloor, final Direction direction, int cabinId) {
+		return Iterables.limit(Iterables.filter(getUsersAtFloor(atFloor, cabinId), hasSameDirection(direction)), count);
+	}
+
 	public void pushUser(User user) {
 		pushUser(user, user.getInitialFloor());
 	}
@@ -28,13 +71,10 @@ public class BuildingState extends State {
 	}
 
 	public boolean floorInRange(int floor, int cabinId) {
-		int floorsNb = higherFloor - lowerFloor + 1;
-		int rangePerCabin = floorsNb / cabinCount;
-		int higherFloorByCabin = higherFloor + 1;
-		if (cabinId != (cabinCount - 1)) {
-			higherFloorByCabin = (rangePerCabin * (cabinId + 1)) + lowerFloor;
-		}
-		int lowerFloorByCabin = (rangePerCabin * cabinId) + lowerFloor;
+		double floorsNb = higherFloor - lowerFloor + 1;
+		double rangePerCabin = floorsNb / cabinCount;
+		int higherFloorByCabin = (int) (lowerFloor + (rangePerCabin * (cabinId + 1)));
+		int lowerFloorByCabin = (int) ((rangePerCabin * cabinId) + lowerFloor);
 		return floor >= lowerFloorByCabin && floor < higherFloorByCabin;
 	}
 }

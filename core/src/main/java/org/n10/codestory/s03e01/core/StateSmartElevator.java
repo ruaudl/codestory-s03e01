@@ -1,11 +1,8 @@
 package org.n10.codestory.s03e01.core;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+
 import org.n10.codestory.s03e01.api.BuildingState;
 import org.n10.codestory.s03e01.api.Command;
 import org.n10.codestory.s03e01.api.Direction;
@@ -13,6 +10,9 @@ import org.n10.codestory.s03e01.api.ElevatorEngine;
 import org.n10.codestory.s03e01.api.ElevatorIsBrokenException;
 import org.n10.codestory.s03e01.api.ElevatorState;
 import org.n10.codestory.s03e01.api.User;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 public class StateSmartElevator implements ElevatorEngine {
 
@@ -26,18 +26,16 @@ public class StateSmartElevator implements ElevatorEngine {
 	@Override
 	public List<Command> nextCommand() throws ElevatorIsBrokenException {
 		List<Command> commands = Lists.transform(elevators, new Function<ElevatorState, Command>() {
-
-											@Override
-											public Command apply(ElevatorState input) {
-												return nextCommand(input);
-											}
-										});
+			@Override
+			public Command apply(ElevatorState input) {
+				return nextCommand(input);
+			}
+		});
 		building.tickUsers();
-		// System.out.println(String.format("Command %s returned with states:\n%s",
-		// command, this));
+		// System.out.println(String.format("Command %s returned with states:\n%s", command, this));
 		return commands;
 	}
-	
+
 	private Command nextCommand(ElevatorState elevator) {
 		Command command = Command.NOTHING;
 
@@ -93,13 +91,13 @@ public class StateSmartElevator implements ElevatorEngine {
 	@Override
 	public ElevatorEngine reset(Integer lowerFloor, Integer higherFloor, Integer cabinSize, Integer cabinCount, String cause) throws ElevatorIsBrokenException {
 		building = new BuildingState(lowerFloor, higherFloor, cabinCount);
-		List<ElevatorState> newElevators = new ArrayList<>(cabinSize);
-		for (int i=0; i< cabinSize; i++) {
-		ElevatorState newState = new ElevatorState(building, cabinSize, i);
-		if (elevators != null && i < elevators.size() && elevators.get(i) != null) {
-			newState.targetThreshold = elevators.get(i).targetThreshold;
-		}
-		newElevators.add(newState);
+		List<ElevatorState> newElevators = new ArrayList<>(cabinCount);
+		for (int i = 0; i < cabinCount; i++) {
+			ElevatorState newState = new ElevatorState(building, cabinSize, i);
+			if (elevators != null && i < elevators.size() && elevators.get(i) != null) {
+				newState.targetThreshold = elevators.get(i).targetThreshold;
+			}
+			newElevators.add(newState);
 		}
 		elevators = newElevators;
 		return this;
@@ -108,7 +106,7 @@ public class StateSmartElevator implements ElevatorEngine {
 	@Override
 	public ElevatorEngine limit(Integer limit) {
 		for (ElevatorState elevator : elevators) {
-			elevator.targetThreshold = limit;	
+			elevator.targetThreshold = limit;
 		}
 		return this;
 	}

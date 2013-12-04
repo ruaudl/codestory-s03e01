@@ -27,7 +27,6 @@ public class ElevatorState extends State {
 		}
 	};
 	private Map<Direction, Predicate<Entry<Integer, Queue<User>>>> isAhead = new HashMap<>();
-	
 	{
 		isAhead.put(Direction.UP, new Predicate<Entry<Integer, Queue<User>>>() {
 			@Override
@@ -67,11 +66,11 @@ public class ElevatorState extends State {
 	}
 
 	public boolean willGivePoints() {
-		return willGivePoints(Iterables.concat(Iterables.concat(targets.values(), buildingState.targets.values())));
+		return willGivePoints(Iterables.concat(Iterables.concat(getUsers(), buildingState.getUsers(cabinId))));
 	}
 
 	private boolean hasTargets(final Direction direction) {
-		Iterable<Entry<Integer, Queue<User>>> waitings = Iterables.filter(buildingState.targets.entrySet(), isAhead.get(direction));
+		Iterable<Entry<Integer, Queue<User>>> waitings = Iterables.filter(buildingState.getUsersByFloor(cabinId), isAhead.get(direction));
 		Iterable<Entry<Integer, Queue<User>>> travelings = Iterables.filter(targets.entrySet(), isAhead.get(direction));
 
 		if (Iterables.isEmpty(waitings) && Iterables.isEmpty(travelings)) {
@@ -100,11 +99,11 @@ public class ElevatorState extends State {
 	}
 
 	public boolean hasTravelersToGetOutWithPoints() {
-		return hasTravelersToGetOut() && (Iterables.tryFind(getUsers(floor), hasPotentialPoints).isPresent() || !willGivePoints());
+		return hasTravelersToGetOut() && (Iterables.tryFind(getUsersAtFloor(floor), hasPotentialPoints).isPresent() || !willGivePoints());
 	}
 
 	public boolean hasTravelersWithPoints() {
-		return travelersCount > 0 && (Iterables.tryFind(Iterables.concat(targets.values()), hasPotentialPoints).isPresent());
+		return travelersCount > 0 && (Iterables.tryFind(Iterables.concat(getUsers()), hasPotentialPoints).isPresent());
 	}
 
 	public boolean thresholdNotReached() {
@@ -191,7 +190,7 @@ public class ElevatorState extends State {
 
 	public String getStatus() {
 		String getOut = hasTravelersToGetOut() ? "<" : " ";
-		Queue<User> waitings = buildingState.getUsers(floor);
+		Queue<User> waitings = buildingState.getUsersAtFloor(floor, cabinId);
 		String getIn = Iterables.tryFind(waitings, hasSameDirection(direction)).isPresent() ? "≥" : isNotEmpty(waitings) ? ">" : " ";
 		String aheadOrBehind = hasTargetsAhead() ? "→" : hasTargetsBehind() ? "↺" : " ";
 		String state = String.format("(%02d:%s:%02d/%02d:%s%s:%s)", floor, direction.toShortString(), getTargetsCount(), targetThreshold, getOut, getIn,
@@ -205,15 +204,15 @@ public class ElevatorState extends State {
 	}
 
 	private int getRoom(int atFloor) {
-		return cabinSize - travelersCount + getUsers(atFloor).size();
+		return cabinSize - travelersCount + getUsersAtFloor(atFloor).size();
 	}
 
 	private Iterable<User> getFirstWaitingFollowing(int atFloor) {
-		return buildingState.getFirstUsers(getRoom(atFloor), atFloor, direction);
+		return buildingState.getFirstUsers(getRoom(atFloor), atFloor, direction, cabinId);
 	}
 
 	private Iterable<User> getFirstWaitingReversing(int atFloor) {
-		return buildingState.getFirstUsers(getRoom(atFloor), atFloor, inverse(direction));
+		return buildingState.getFirstUsers(getRoom(atFloor), atFloor, inverse(direction), cabinId);
 	}
 
 	private Iterable<User> getFirstWaiting(int atFloor) {

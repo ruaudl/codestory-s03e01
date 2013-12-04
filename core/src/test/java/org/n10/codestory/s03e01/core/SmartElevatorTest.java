@@ -1,5 +1,6 @@
 package org.n10.codestory.s03e01.core;
 
+import static java.util.Arrays.*;
 import static org.n10.codestory.s03e01.api.Command.*;
 import static org.n10.codestory.s03e01.core.ElevatorAssert.*;
 
@@ -439,6 +440,46 @@ public class SmartElevatorTest {
 		elevator.userHasExited(null, 0);
 
 		assertCommands(elevator, CLOSE, NOTHING);
+	}
+
+	@Test
+	public void shouldMoveSecondCabinToCall() {
+		ElevatorEngine elevator = new StateSmartElevator();
+		elevator.reset(-2, 8, 10, 2, null);
+
+		elevator.call(3, Direction.UP);
+		assertCommands(elevator, asList(NOTHING, UP), asList(NOTHING, UP), asList(NOTHING, UP), asList(NOTHING, OPEN_UP));
+
+		elevator.userHasEntered(null, 1);
+		elevator.go(5, 1);
+		assertCommands(elevator, asList(NOTHING, CLOSE), asList(NOTHING, UP), asList(NOTHING, UP), asList(NOTHING, OPEN_UP));
+
+		elevator.userHasExited(null, 1);
+		assertCommands(elevator, asList(NOTHING, CLOSE), asList(NOTHING, NOTHING));
+	}
+
+	@Test
+	public void shouldMoveCabinsToCalls() {
+		ElevatorEngine elevator = new StateSmartElevator();
+		elevator.reset(-2, 8, 10, 2, null);
+
+		elevator.call(3, Direction.UP);
+		assertCommands(elevator, asList(NOTHING, UP), asList(NOTHING, UP));
+
+		elevator.call(-1, Direction.UP);
+		assertCommands(elevator, asList(DOWN, UP), asList(OPEN_UP, OPEN_UP));
+
+		elevator.userHasEntered(null, 0);
+		elevator.go(3, 0);
+		elevator.userHasEntered(null, 1);
+		elevator.go(5, 1);
+		assertCommands(elevator, asList(CLOSE, CLOSE), asList(UP, UP), asList(UP, UP), asList(UP, OPEN_UP));
+
+		elevator.userHasExited(null, 1);
+		assertCommands(elevator, asList(UP, CLOSE), asList(OPEN_UP, NOTHING));
+
+		elevator.userHasExited(null, 0);
+		assertCommands(elevator, asList(CLOSE, NOTHING), asList(NOTHING, NOTHING));
 	}
 
 }

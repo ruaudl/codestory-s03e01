@@ -1,10 +1,12 @@
 package org.n10.codestory.s03e01.api;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -15,7 +17,15 @@ public abstract class State {
 
 	public Map<Integer, Queue<User>> targets = new HashMap<>();
 
-	public Queue<User> getUsers(int atFloor) {
+	public Collection<Queue<User>> getUsers() {
+		return targets.values();
+	}
+
+	public Set<Entry<Integer,Queue<User>>> getUsersByFloor() {
+		return targets.entrySet();
+	}
+
+	public Queue<User> getUsersAtFloor(int atFloor) {
 		Queue<User> queue = targets.get(atFloor);
 		if (queue == null) {
 			queue = new LinkedList<>();
@@ -24,22 +34,22 @@ public abstract class State {
 		return queue;
 	}
 
+	public Iterable<User> getFirstUsers(int count, int atFloor, final Direction direction) {
+		return Iterables.limit(Iterables.filter(getUsersAtFloor(atFloor), hasSameDirection(direction)), count);
+	}
+
 	public void pushUser(User user, Integer atFloor) {
-		getUsers(atFloor).add(user);
+		getUsersAtFloor(atFloor).add(user);
 	}
 
 	public User popUser(int atFloor) {
-		return getUsers(atFloor).remove();
+		return getUsersAtFloor(atFloor).remove();
 	}
 
 	public User popUser(int atFloor, final Direction direction) {
-		User userToPop = Iterables.tryFind(getUsers(atFloor), hasSameDirection(direction)).get();
-		getUsers(atFloor).remove(userToPop);
+		User userToPop = Iterables.tryFind(getUsersAtFloor(atFloor), hasSameDirection(direction)).get();
+		getUsersAtFloor(atFloor).remove(userToPop);
 		return userToPop;
-	}
-
-	public Iterable<User> getFirstUsers(int count, int atFloor, final Direction direction) {
-		return Iterables.limit(Iterables.filter(getUsers(atFloor), hasSameDirection(direction)), count);
 	}
 
 	public int getTargetsCount() {
