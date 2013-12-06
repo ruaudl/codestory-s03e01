@@ -155,8 +155,10 @@ public class ElevatorState extends State {
 	}
 
 	public Command doOpen() {
-		if (!hasTargetsAhead() && !Iterables.tryFind(getFirstWaitingFollowing(floor), hasPotentialPoints).isPresent()) {
-			if (hasTargetsBehind() || Iterables.tryFind(getFirstWaitingReversing(floor), hasPotentialPoints).isPresent()) {
+		Iterable<User> following = getFirstWaitingFollowing(floor);
+		if (!hasTargetsAhead() && !Iterables.tryFind(following, hasPotentialPoints).isPresent()) {
+			Iterable<User> reversing = getFirstWaitingReversing(floor);
+			if (hasTargetsBehind() || Iterables.tryFind(reversing, hasPotentialPoints).isPresent() || (isEmpty(following) && isNotEmpty(reversing))) {
 				direction = inverse(direction);
 			}
 		}
