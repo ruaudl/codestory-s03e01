@@ -132,7 +132,7 @@ public class ElevatorState extends State {
 		}
 
 		Iterable<User> waitings = getFirstWaiting(floor);
-		if (!isNotEmpty(waitings)) {
+		if (isEmpty(waitings)) {
 			return false;
 		}
 
@@ -194,7 +194,7 @@ public class ElevatorState extends State {
 
 	public String getStatus() {
 		String getOut = hasTravelersToGetOut() ? "<" : " ";
-		Queue<User> waitings = buildingState.getUsersAtFloor(floor);
+		Queue<User> waitings = buildingState.getUsersAtFloor(floor, cabinId);
 		String getIn = Iterables.tryFind(waitings, hasSameDirection(direction)).isPresent() ? "≥" : isNotEmpty(waitings) ? ">" : " ";
 		String aheadOrBehind = hasTargetsAhead() ? "→" : hasTargetsBehind() ? "↺" : " ";
 		String state = String.format("(%02d:%s:%02d/%02d:%s%s:%s)", floor, direction.toShortString(), getTargetsCount(), targetThreshold, getOut, getIn,
@@ -212,11 +212,11 @@ public class ElevatorState extends State {
 	}
 
 	private Iterable<User> getFirstWaitingFollowing(int atFloor) {
-		return buildingState.getFirstUsers(getRoom(atFloor), atFloor, direction);
+		return buildingState.getFirstUsers(getRoom(atFloor), atFloor, direction, cabinId);
 	}
 
 	private Iterable<User> getFirstWaitingReversing(int atFloor) {
-		return buildingState.getFirstUsers(getRoom(atFloor), atFloor, inverse(direction));
+		return buildingState.getFirstUsers(getRoom(atFloor), atFloor, inverse(direction), cabinId);
 	}
 
 	private Iterable<User> getFirstWaiting(int atFloor) {

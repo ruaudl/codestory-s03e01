@@ -1,14 +1,18 @@
 package org.n10.codestory.s03e01.api;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 
 public class BuildingState extends State {
 
@@ -71,10 +75,22 @@ public class BuildingState extends State {
 	}
 
 	public boolean floorInRange(int floor, int cabinId) {
-		double floorsNb = higherFloor - lowerFloor + 1;
-		double rangePerCabin = floorsNb / cabinCount;
-		int higherFloorByCabin = (int) (lowerFloor + (rangePerCabin * (cabinId + 1)));
-		int lowerFloorByCabin = (int) ((rangePerCabin * cabinId) + lowerFloor);
-		return floor >= lowerFloorByCabin && floor < higherFloorByCabin;
+		Map<Integer, Queue<User>> effectiveTargets = Maps.filterEntries(targets, new Predicate<Entry<Integer, Queue<User>>>() {
+			public boolean apply(Entry<Integer, Queue<User>> input) {
+				return isNotEmpty(input.getValue());
+			}
+		});
+		if (!effectiveTargets.containsKey(floor)) {
+			return false;
+		}
+
+		ArrayList<Integer> indexes = Lists.newArrayList(Ordering.natural().sortedCopy(effectiveTargets.keySet()));
+		int floorIndex = indexes.indexOf(Integer.valueOf(floor));
+
+		double indexesNb = indexes.size();
+		double rangePerCabin = indexesNb / cabinCount;
+		int higherIndexByCabin = (int) ((rangePerCabin * (cabinId + 1)));
+		int lowerIndexByCabin = (int) ((rangePerCabin * cabinId));
+		return floorIndex >= lowerIndexByCabin && floorIndex < higherIndexByCabin;
 	}
 }

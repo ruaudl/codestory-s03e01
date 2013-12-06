@@ -21,7 +21,7 @@ public abstract class State {
 		return targets.values();
 	}
 
-	public Set<Entry<Integer,Queue<User>>> getUsersByFloor() {
+	public Set<Entry<Integer, Queue<User>>> getUsersByFloor() {
 		return targets.entrySet();
 	}
 

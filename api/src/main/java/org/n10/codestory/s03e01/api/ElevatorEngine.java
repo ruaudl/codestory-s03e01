@@ -7,7 +7,7 @@ public interface ElevatorEngine {
 	final static Integer LOWER_FLOOR = 0;
 	final static Integer HIGHER_FLOOR = 19;
 	final static Integer CABIN_SIZE = 42;
-	final static Integer CABIN_COUNT = 2;
+	final static Integer CABIN_COUNT = 1;
 
 	ElevatorEngine call(Integer atFloor, Direction to) throws ElevatorIsBrokenException;
 

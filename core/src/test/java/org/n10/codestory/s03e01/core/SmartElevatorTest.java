@@ -492,15 +492,58 @@ public class SmartElevatorTest {
 
 		elevator.userHasEntered(null, 1);
 		elevator.go(-2, 1);
-		assertCommands(elevator, asList(NOTHING, CLOSE), asList(NOTHING, DOWN), asList(NOTHING, DOWN), asList(NOTHING, DOWN), asList(NOTHING, DOWN));
+		assertCommands(elevator, asList(NOTHING, CLOSE));
+		assertManyCommands(elevator, 4, asList(NOTHING, DOWN));
 
 		elevator.call(-2, Direction.UP);
+		elevator.call(8, Direction.DOWN);
 		assertCommands(elevator, asList(DOWN, DOWN), asList(DOWN, OPEN_UP));
 
 		elevator.userHasExited(null, 1);
 		elevator.userHasEntered(null, 1);
 		elevator.go(-1, 1);
 		assertCommands(elevator, asList(NOTHING, CLOSE), asList(NOTHING, UP), asList(NOTHING, OPEN_UP));
+
+		elevator.userHasExited(null, 1);
+		assertCommands(elevator, asList(NOTHING, CLOSE));
+		assertManyCommands(elevator, 9, asList(NOTHING, UP));
+		assertCommands(elevator, asList(NOTHING, OPEN_DOWN));
+
+		elevator.userHasEntered(null, 1);
+		elevator.go(7, 1);
+		assertCommands(elevator, asList(NOTHING, CLOSE), asList(NOTHING, DOWN), asList(NOTHING, OPEN_DOWN));
+
+		elevator.userHasExited(null, 1);
+		assertCommands(elevator, asList(NOTHING, CLOSE), asList(NOTHING, NOTHING));
+	}
+
+	@Test
+	public void shouldOpenCabinsToCallerDirections() {
+		ElevatorEngine elevator = new StateSmartElevator();
+		elevator.reset(-2, 8, 10, 2, null);
+
+		elevator.call(1, Direction.UP);
+		elevator.call(4, Direction.DOWN);
+		elevator.call(8, Direction.DOWN);
+		assertCommands(elevator, asList(UP, UP), asList(OPEN_UP, UP));
+
+		elevator.userHasEntered(null, 0);
+		elevator.go(4, 0);
+		assertCommands(elevator, asList(CLOSE, UP));
+		assertManyCommands(elevator, 3, asList(UP, UP));
+		assertCommands(elevator, asList(OPEN_DOWN, UP));
+
+		elevator.userHasExited(null, 0);
+		elevator.userHasEntered(null, 0);
+		elevator.go(3, 0);
+		assertCommands(elevator, asList(CLOSE, UP), asList(DOWN, OPEN_DOWN));
+
+		elevator.userHasEntered(null, 1);
+		elevator.go(7, 1);
+		assertCommands(elevator, asList(OPEN_DOWN, CLOSE));
+
+		elevator.userHasExited(null, 0);
+		assertCommands(elevator, asList(CLOSE, DOWN), asList(NOTHING, OPEN_DOWN));
 
 		elevator.userHasExited(null, 1);
 		assertCommands(elevator, asList(NOTHING, CLOSE), asList(NOTHING, NOTHING));

@@ -12,6 +12,9 @@ public class BuildingStateTest {
 	@Test
 	public void floorInRangeAlwaysTrueForOneCabin() {
 		BuildingState buildingState = new BuildingState(-2, 10, 1);
+		for (int i = buildingState.lowerFloor; i <= buildingState.higherFloor; i++) {
+			buildingState.pushUser(new User(Direction.DOWN, i), i);
+		}
 		Assertions.assertThat(buildingState.floorInRange(-3, 0)).isFalse();
 		Assertions.assertThat(buildingState.floorInRange(-2, 0)).isTrue();
 		Assertions.assertThat(buildingState.floorInRange(4, 0)).isTrue();
@@ -22,6 +25,9 @@ public class BuildingStateTest {
 	@Test
 	public void floorInRangeForTwoCabinsAndImpairFloorsNumber() {
 		BuildingState buildingState = new BuildingState(-2, 10, 2);
+		for (int i = buildingState.lowerFloor; i <= buildingState.higherFloor; i++) {
+			buildingState.pushUser(new User(Direction.DOWN, i), i);
+		}
 		Assertions.assertThat(buildingState.floorInRange(-3, 0)).isFalse();
 		Assertions.assertThat(buildingState.floorInRange(-2, 0)).isTrue();
 		Assertions.assertThat(buildingState.floorInRange(0, 0)).isTrue();
@@ -39,6 +45,9 @@ public class BuildingStateTest {
 	@Test
 	public void floorInRangeForTwoCabinsAndPairFloorsNumber() {
 		BuildingState buildingState = new BuildingState(-2, 9, 2);
+		for (int i = buildingState.lowerFloor; i <= buildingState.higherFloor; i++) {
+			buildingState.pushUser(new User(Direction.DOWN, i), i);
+		}
 		Assertions.assertThat(buildingState.floorInRange(-3, 0)).isFalse();
 		Assertions.assertThat(buildingState.floorInRange(-2, 0)).isTrue();
 		Assertions.assertThat(buildingState.floorInRange(0, 0)).isTrue();
@@ -56,6 +65,9 @@ public class BuildingStateTest {
 	@Test
 	public void floorInRangeForThreeCabinsAndTwentyFloors() {
 		BuildingState buildingState = new BuildingState(-2, 17, 3);
+		for (int i = buildingState.lowerFloor; i <= buildingState.higherFloor; i++) {
+			buildingState.pushUser(new User(Direction.DOWN, i), i);
+		}
 		Assertions.assertThat(buildingState.floorInRange(-3, 0)).isFalse();
 		Assertions.assertThat(buildingState.floorInRange(-2, 0)).isTrue();
 		Assertions.assertThat(buildingState.floorInRange(0, 0)).isTrue();
@@ -78,6 +90,9 @@ public class BuildingStateTest {
 	@Test
 	public void floorInRangeForThreeCabinsAndTenFloors() {
 		BuildingState buildingState = new BuildingState(-2, 7, 3);
+		for (int i = buildingState.lowerFloor; i <= buildingState.higherFloor; i++) {
+			buildingState.pushUser(new User(Direction.DOWN, i), i);
+		}
 		Assertions.assertThat(buildingState.floorInRange(-3, 0)).isFalse();
 		Assertions.assertThat(buildingState.floorInRange(-2, 0)).isTrue();
 		Assertions.assertThat(buildingState.floorInRange(0, 0)).isTrue();
